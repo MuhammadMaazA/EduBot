@@ -1,0 +1,430 @@
+<head>
+    <meta charset="utf-8">
+	<meta http-equiv="Cache-control" content="public">
+
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+	<title>Apha-Mini Storytime!</title>
+	<!-- Style taken from https://raw.githubusercontent.com/hypertexthero/htmlformtofile/master/index.html-->
+	<style type="text/css" media="screen">
+		body {font-family:verdana, sans-serif;  font-weight: 700; color:#271d1d; background:#f5b0b0; padding:20px; text-align:center;}
+		h1 {font-size:50px; font-weight: bold; text-align:center; color: #920be1;}
+		label {font-size:20px;font-weight: bold;}
+		button {margin-left:205px; padding:5px; margin-top:5px; font-size:16px;}
+		textarea {width:400px; font-size:16px; font-family: courier, "courier new", monospace; margin:0 0 5px 0; padding:5px; border:1px solid #eee; }
+		select {margin:0 0 5px 0;}
+		::placeholder {color:#d4d2d2;}
+		.disabled{
+			cursor: not-allowed;
+			pointer-events: none;
+		}
+		.color-update{
+			background-color: #007bff;
+		}
+		.slider{
+			width: 400px;
+			height: 30px;
+			background: #d3d3d3;
+			outline: none;
+			opacity: 0.7;
+			-webkit-transition: .2s;
+			transition: opacity .2s;
+		}
+
+		.container{
+			display: flex;
+			justify-content: space-around;
+			margin-bottom: 10px;
+		}
+
+		textarea{
+			width: 75%;
+			height: 100px;
+			margin-top: 10px; 
+			background-color: #fff9c4;
+			overflow-y: hidden; 
+					
+		}
+
+		#storyPrompt {
+			background-color: #F2F2F2;
+		}
+		#editableText{
+			background-color:#fff9c4;
+			display: none;
+		}
+
+		.button-container {
+			text-align: center;
+			margin-top: 10px;
+		}
+		button{
+			margin: 5px;
+			padding: 5px  10px;
+			font-family: Arial, Helvetica, sans-serif;
+			font-weight: 900;
+			padding: 15px;
+			letter-spacing: 1px;
+			font-size: 20px;
+			background-color: #7cbcff;
+			border: 5px solid rgb(248, 149,s 19);
+			cursor: pointer; /*cursor to hand pointer*/			
+		}
+		button:hover{
+			background-color: #007bff;
+		}
+		#submit-button:hover{
+			background-color: #ffb74d;
+		}	
+		
+		#mainButtons-container{
+			text-align: center;
+			padding: 20px;
+		}
+		#main-button{
+			font-family: Arial, Helvetica, sans-serif;
+			font-weight: 900;
+			padding: 50px;
+			letter-spacing: 1px;
+			font-size: 40px;
+			background-color: rgb(244, 159, 231);
+			border: 5px solid blueviolet;
+			cursor: pointer; /*cursor to hand pointer*/
+		}
+		#main-button:hover{
+			background-color: blueviolet;
+		}
+		#submit-button{
+			font-family: Arial, Helvetica, sans-serif;
+			font-weight: 900;
+			padding: 15px;
+			letter-spacing: 1px;
+			font-size: 20px;
+			background-color: rgb(255, 220, 78);
+			border: 5px solid rgb(248, 149,19);
+			cursor: pointer; /*cursor to hand pointer*/			
+		}
+		#submit-button:hover{
+			background-color: rgb(248, 149, 19);
+		}
+
+		.container2 {
+			max-width: 600px;
+			margin: 0 auto;
+			padding: 20px;
+			}
+
+		.button2 {
+			padding: 10px 20px;
+			border: none;
+			background-color: #6daeff;
+			color: #fcfcfc;
+			border-radius: 5px;
+			cursor: pointer;
+			margin-top: 10px;
+		}
+
+		.button2:hover {
+			background-color: #1d34aa;
+		}
+
+		.button-group2 {
+			display: flex;
+			justify-content: space-between;
+		}
+
+		.header2 {
+			font-size: 20px;
+			font-weight: bold;
+			margin-bottom: 20px;
+		}
+
+		.checkbox-label, .radio-label {
+			display:list-item;
+			margin-bottom: 10px;
+			padding: 5px;
+			background-color: #b6ebdf;
+			border-radius: 5px;
+			cursor: pointer;
+			transition: background-color 0.3s ease;
+		}
+
+		.checkbox-label:hover, .radio-label:hover {
+			background-color: #12a1c4;
+		}
+
+		.container_form {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            max-width: 700px;
+            width: 100%;
+            margin: 20px auto;
+            overflow: hidden;
+        }
+        h2 {
+            color: #6a1b9a;
+            text-align: center;
+            font-size: 1.5em;
+            margin-bottom: 30px;
+        }
+        .sub-title {
+            color: #6a1b9a;
+            text-align: center;
+            font-size: 1em;
+            background: #6a1b9a;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            margin: -20px auto 30px auto;
+            display: inline-block;
+        }
+        .question {
+            margin-bottom: 30px;
+            position: relative;
+            padding: 10px;
+            border-radius: 10px;
+        }
+        .highlight {
+            background-color: #b3e5fc;
+        }
+        .question label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+        .slider-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .slider_form {
+            width: 100%;
+            margin: 0 10px;
+        }
+        .label_form {
+            display: flex;
+            align-items: center;
+        }
+        .label_form span {
+            margin-left: 5px;
+            font-weight: bold;
+            color: #6a1b9a;
+        }
+        .comments {
+            margin-bottom: 30px;
+        }
+        .comments textarea {
+            width: 100%;
+            height: 100px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+            font-size: 1em;
+            resize: vertical;
+        }
+       
+        .submit-btn {
+            background-color: #6a1b9a;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1.2em;
+            transition: background-color 0.3s ease;
+            display: block;
+            width: 100%;
+            text-align: center;
+        }
+        .submit-btn:hover {
+            background-color: #4a148c;
+        }
+        .blue { background-color: #b3e5fc; }
+        .green { background-color: #c8e6c9; }
+        .yellow { background-color: #fff9c4; }
+        .orange { background-color: #ffe0b2; }
+        .purple { background-color: #d1c4e9; }
+        .pink { background-color: #f8bbd0; }
+		
+	</style>
+</head>
+ 
+<body >
+		<label> &#x1F916; : Give us your feedback! </label><br>
+		<br>
+		<div class="container_form">
+			<h2>Story Evaluation Form</h2>
+			<div class="sub-title">Teacher Feedback Form</div>
+		
+			<div class="question blue">
+				<label for="accuracy">How accurately does this story align with the given topic?</label>
+				<div class="slider-container">
+					<div class="label_form"><span>1</span> <span>(Lowest)</span></div>
+					<input type="range" min="1" max="10" value="5" class="slider_form" id="accuracy">
+					<div class="label_form"><span>10</span> <span>(Highest)</span></div>
+				</div>
+				<div class="slider-value" id="accuracy-value">Current Value: 5</div>
+			</div>
+		
+			<div class="question green">
+				<label for="suitability">Is this story suitable for the specified age group?</label>
+				<div class="slider-container">
+					<div class="label_form"><span>1</span> <span>(Lowest)</span></div>
+					<input type="range" min="1" max="10" value="5" class="slider_form" id="suitability">
+					<div class="label_form"><span>10</span> <span>(Highest)</span></div>
+				</div>
+				<div class="slider-value" id="suitability-value">Current Value: 5</div>
+			</div>
+		
+			<div class="question yellow">
+				<label for="integration">How likely are you to integrate this story into your classroom discussions on the specified topic?</label>
+				<div class="slider-container">
+					<div class="label_form"><span>1</span> <span>(Lowest)</span></div>
+					<input type="range" min="1" max="10" value="5" class="slider_form" id="integration">
+					<div class="label_form"><span>10</span> <span>(Highest)</span></div>
+				</div>
+				<div class="slider-value" id="integration-value">Current Value: 5</div>
+			</div>
+		
+			<div class="question orange">
+				<label for="query-accuracy">How accurate the query is based on the story?</label>
+				<div class="slider-container">
+					<div class="label_form"><span>1</span> <span>(Lowest)</span></div>
+					<input type="range" min="1" max="10" value="5" class="slider_form" id="query-accuracy">
+					<div class="label_form"><span>10</span> <span>(Highest)</span></div>
+				</div>
+				<div class="slider-value" id="query-accuracy-value">Current Value: 5</div>
+			</div>
+		
+			<div class="question purple">
+				<label for="query-suitability">Is this query suitable for the specified age group?</label>
+				<div class="slider-container">
+					<div class="label_form"><span>1</span> <span>(Lowest)</span></div>
+					<input type="range" min="1" max="10" value="5" class="slider_form" id="query-suitability">
+					<div class="label_form"><span>10</span> <span>(Highest)</span></div>
+				</div>
+				<div class="slider-value" id="query-suitability-value">Current Value: 5</div>
+			</div>
+		
+			<div class="question pink">
+				<label for="query-objectives">Does this query align well with the learning objectives of the course?</label>
+				<div class="slider-container">
+					<div class="label_form"><span>1</span> <span>(Lowest)</span></div>
+					<input type="range" min="1" max="10" value="5" class="slider_form" id="query-objectives">
+					<div class="label_form"><span>10</span> <span>(Highest)</span></div>
+				</div>
+				<div class="slider-value" id="query-objectives-value">Current Value: 5</div>
+			</div>
+		
+				<div class="comments">
+					<label for="comments">Additional Comments (Optional)</label>
+					<textarea id="comments" name="comments"></textarea>
+				</div>
+		
+		   
+			<button class="submit-btn" type="submit" onclick="sendFeedback()">Submit </button>
+		</div>
+
+
+	</div>
+	</div>
+</body>
+ 
+<script>
+	
+	// update the current value of the accuracy according the current slider value
+	const accuracySlider = document.getElementById('accuracy');
+    const accuracyValue = document.getElementById('accuracy-value');
+    accuracySlider.oninput = function() {
+        accuracyValue.textContent = 'Current Value: ' + this.value;
+    };
+
+	// update the current value of the accuracy according the current slider value
+	const suitabilitySlider = document.getElementById('suitability');
+    const suitabilityValue = document.getElementById('suitability-value');
+    suitabilitySlider.oninput = function() {
+        suitabilityValue.textContent = 'Current Value: ' + this.value;
+    };
+
+	// update the current value of the accuracy according the current slider value
+	const integrationSlider = document.getElementById('integration');
+    const integrationValue = document.getElementById('integration-value');
+    integrationSlider.oninput = function() {
+        integrationValue.textContent = 'Current Value: ' + this.value;
+    };
+
+	// update the current value of the accuracy according the current slider value
+	const queryAccuracySlider = document.getElementById('query-accuracy');
+    const queryAccuracyValue = document.getElementById('query-accuracy-value');
+    queryAccuracySlider.oninput = function() {
+        queryAccuracyValue.textContent = 'Current Value: ' + this.value;
+    };
+
+	// update the current value of the accuracy according the current slider value
+	const querySuitabilitySlider = document.getElementById('query-suitability');
+    const querySuitabilityValue = document.getElementById('query-suitability-value');
+    querySuitabilitySlider.oninput = function() {
+        querySuitabilityValue.textContent = 'Current Value: ' + this.value;
+    };
+
+	// update the current value of the accuracy according the current slider value
+	const queryObjectivesSlider = document.getElementById('query-objectives');
+    const queryObjectivesValue = document.getElementById('query-objectives-value');
+    queryObjectivesSlider.oninput = function() {
+        queryObjectivesValue.textContent = 'Current Value: ' + this.value;
+    };
+
+	function download(content, fileName, contentType) {
+			var a = document.createElement("a");
+			var file = new Blob([content], {type: contentType});
+			a.href = URL.createObjectURL(file);
+			a.download = fileName;
+			a.click();
+		}
+
+	function sendFeedback(){
+		const q1Ans = accuracySlider.value;
+		const q2Ans = suitabilitySlider.value;
+		const q3Ans = integrationSlider.value;
+		const q4Ans =  queryAccuracySlider.value;
+		const q5Ans =  querySuitabilitySlider.value;
+		const q6Ans =  queryObjectivesSlider.value;
+		const q7Ans =  document.getElementById('comments').value;
+		
+	
+
+		var dict = {
+			story_accuracy: q1Ans,
+			story_suitable: q2Ans,
+			class_integration: q3Ans,
+			query_accuracy: q4Ans,
+			query_suitable: q5Ans,
+			query_objective: q6Ans,
+			user_comments: q7Ans
+
+		};
+
+	
+		console.log(dict);
+
+		/*
+		my idea : send this to nur.py
+		it handles it there
+		*/
+
+		const socket =new WebSocket('ws://localhost:10000');
+        socket.addEventListener('open', function (event) {
+			socket.send(JSON.stringify(dict));  
+			socket.close();	
+		});
+   
+		
+	}
+
+</script>
+ 
+</html>

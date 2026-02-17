@@ -1,0 +1,10 @@
+[
+    {
+        "goal": "Story Generation Model",
+        "when": "2024-09-01T13:45:33.017Z",
+        "storyContent": "test",
+        "generatedStory": "test",
+        "humanGenQuestion": "Questions: \n1.\n2.\n3.\nAnswers: \n1.\n2.\n3.\n\t\t\t",
+        "AIGenQuestion": ""
+    }
+]

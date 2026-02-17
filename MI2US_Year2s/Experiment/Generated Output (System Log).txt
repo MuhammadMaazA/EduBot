@@ -1,0 +1,79 @@
+[
+    {
+        "goal": "Story Generation Model",
+        "when": "2024-10-29T17:53:47.228Z",
+        "storyContent": "Robo-buddy introduction",
+        "generatedStory": "\"Hello, little humans! My name is Robo-Buddy, and I\u2019ve come all the way from another galaxy to learn, play, and make new friends with you! I\u2019m so excited to explore Earth and discover what makes it so special. I want to learn about everything makes this class special! Do you accept me to be one week as part of your group? yes?! No?! Yes!!\nAwesome! Friendship is a new adventure for me, and I\u2019d love for you to show me how friends on Earth care for one another and work together.\nCan you help me understand your world and teach me what it means to be a good friend here? Let\u2019s go on this journey together\u2014learning about each other, having fun, and making memories as we explore Earth\u2019s amazing culture!\"\n",
+        "humanGenQuestion": "Questions: \n1.\n2.\n3.\nAnswers: \n1.\n2.\n3.\n\t\t\t",
+        "AIGenQuestion": ""
+    },
+{
+        "goal": "Story Generation Model",
+        "when": "2024-07-29T15:20:28.630Z",
+        "storyContent": "Year 2 - 1 Monday - Story",
+        "generatedStory": "Once upon a time, in a bustling town filled with curious minds and creative spirits, there lived a young rabbit named Benny. Benny was unlike any other bunny in the meadow; he had a fluffy white coat and eyes that shimmered with curiosity. While other bunnies spent their days hopping around and nibbling on carrots, Benny was always eager to learn new things and explore the world beyond his cozy burrow.\nOne sunny afternoon, Benny stumbled upon a group of bunnies gathered around a pile of colorful materials. They were talking excitedly about how they could transform these materials into beautiful artworks by changing their shapes. Intrigued, Benny hopped closer to listen. \"Have you ever wondered how we can make art by changing the shape of solid objects?\" asked a wise old tortoise named Timothy, who had been observing the bunnies from a distance.\nBenny's ears perked up, and he asked, \"What do you mean, Timothy? How can we change the shape of things?\"\nTimothy smiled and replied, \"Well, my dear Benny, there are many ways to mold materials into different shapes. We can bend, twist, stretch, or even squash them to create unique forms. These actions are called 'molding' and they allow us to express our creativity and imagination.\"\nBenny's eyes widened with wonder as he imagined the possibilities. He asked Timothy to teach him more about molding, and the wise tortoise agreed. Together, they embarked on a journey of discovery, exploring various techniques and experimenting with different materials.\nAs they worked, Benny learned about the importance of understanding the properties of each material and how they responded to molding. He discovered that some materials were more flexible than others, while some could be easily bent or twisted. With Timothy's guidance, Benny practiced bending, twisting, stretching, and squashing various objects, creating beautiful sculptures and artworks along the way.\nThroughout their adventures, Benny realized that molding was not just about changing the shape of materials; it was also about expressing emotions, telling stories, and connecting with others. He began sharing his creations with the other bunnies, who marveled at his talent and creativity. Soon, Benny became known as the \"Molding Master,\" inspiring other bunnies to explore their own artistic abilities and embrace the power of molding.\n\nAnd so, Benny continued to learn and grow, always seeking new ways to mold materials and create art. With each passing day, he discovered that the world was full of endless possibilities, waiting to be shaped by his imagination and creativity. And as he shared his knowledge and passion with others, he realized that molding was not just a skill; it was a way of life, connecting people and bringing joy to all who embraced it.\n",
+    {
+        "goal": "Robot Lecture Explanation",
+        "when": "2024-10-31T10:29:40.60e",
+        "storyContent": "Year 2 -2 Monday (explanation)",
+        "generatedStory": "Hello kids! Today, we're going on a fun adventure to find out how we can use our hands to create cool shapes with different materials. Do you know that you can transform solids into amazing artworks using special moves like bending, twisting, stretching, and squashing? Let's explore these moves and discover how fun and creative they can be!\n\nFirst, let's imagine a piece of clay lying on a table. When you press your hands onto it gently, you might see that the clay starts to squish together. This is called squashing. By applying lots of pressure, you can mold the clay into various shapes, such as a ball, a long snake, or even a face!\n\nNext, let's think about bending. Imagine a piece of string or wire. You can gently bend it back and forth to create loops, circles, or curved lines. You can make your own jewelry or decorate your house with twisted metal wires!\n\nNow, let's talk about stretching. If you have a rubber band, try stretching it as far as you can go. Once you let it go, it will snap back into its original shape. That's because rubber is a stretchy material! You can use this property to make unique items, like bracelets or bracelets with patterns.\n\nFinally, let's move on to twisting. Take a thin metal wire and twist it between your fingers until it forms a spiral or a knot. You can create beautiful artworks with threads or even make jewelry by twisting and connecting different pieces.\n\nSo remember, by learning how to bend, twist, stretch, and squash different materials, you can create incredible artworks! Now that you know these moves, think of creative ways you can use them to express yourself and share your ideas with others! What could you make with your newfound skills? How can you change the shape of your favorite objects into something more unique and special? The possibilities are endless, and your imagination is the only limit! Happy molding!",
+        "humanGenQuestion": "Questions: \n1.\n2.\n3.\nAnswers: \n1.\n2.\n3.\n\t\t\t",
+        "AIGenQuestion": "Questions:\n\n1. What materials are used to create different shapes as mentioned in the story?\n\n2. Can you describe the process of squashing clay?\n\n3. What are some creative ideas for using these shapes in artworks?\n\n\nAnswers:\n\n1. Materials used include clay, string, wire, and rubber bands.\n\n2. The process of squashing clay involves pressing hands onto it gently until it squishes together, allowing the user to mold the clay into various shapes.\n\n3. Creative ideas for using these shapes in artworks include making jewelry, decorating a house with twisted metal wires, creating unique items like bracelets with patterns, turning objects into something more unique and special, and expressing oneself through imagination. The possibilities are endless!"
+    },
+ {
+        "goal": "Story Generation Model",
+        "when": "",
+        "storyContent": "Year 2 - 1 (Story)",
+        "generatedStory": "In a magical town filled with fun and excitement, there was a big competition called the \"Everlasting Elastic Expo.\" Every summer, people sent in special materials that could stretch and recover their shape like magic! This super stretchy story is about a young inventor named Stretchy Sam and his amazing elastic disc. Sam loved learning about cool stuff like plastic and how it can stretch and bounce back. He used his skills and a secret recipe to create a fantastic disc that stretched super far and then popped right back without losing any shape! Even though another inventor, Gummy Gertie, won the previous expo, she couldn't help but cheer for Sam because he showed everyone how much fun and ingenuity goes into making these stretchy wonders. Everyone in town was now excited to play with Sam's discovery, showing just how awesome stretchy materials are for all kinds of creations. And Stretchy Sam learned that sharing your knowledge and being kind to others is the best way to have a great time and make more amazing things like his super stretchy disc!",
+        "humanGenQuestion": "Questions: \n1.\n2.\n3.\nAnswers: \n1.\n2.\n3.\n\t\t\t",
+        "AIGenQuestion": "\nQuestions: \n1. Here are a sample of some materials : Elastic\nbands; modelling clay; cling film; hair tie. What do all these materials have in common?\n\n\nAnswers:\n1. They can be shaped"
+    },
+    {
+        "goal": "Robot Lecture Explanation",
+        "when": "",
+        "storyContent": "Year 2 - 2 (explanation)",
+        "generatedStory": "Hello little friends! Today, let\u2019s explore shape magic! Just like we make funny faces with clay or wiggle our bodies, we can also change the shapes of special materials like clay, playdough, and wax.\n\nImagine a piece of clay: if you press it, it squashes; if you pull, it stretches; push from two sides, and it bends into a tube; twist it, and it turns like a worm! Each action makes the clay take a new shape.\n\nNow, let\u2019s use these shape tricks to make art! Think of all the fun things your hands can do\u2014squash, stretch, bend, and twist! Some materials, like clay, can change a lot, while others, like wood, don\u2019t stretch much. So let\u2019s gently explore, create, and have fun with shape magic!",
+        "humanGenQuestion": "Questions: \n1.\n2.\n3.\nAnswers: \n1.\n2.\n3.\n\t\t\t",
+        "AIGenQuestion": "\nQuestions: \n1. Here are a sample of some materials : Elastic\nbands; modelling clay; cling film; hair tie. What do all these materials have in common?\n\n\nAnswers:\n1. They can be shaped"
+    },
+
+ 
+ {
+    "goal": "Story Generation Model",
+    "when": "2024-10-31T10:29:40.60e",
+    "storyContent": "Year 2 - 1 Wednesday",
+    "generatedStory": "Once upon a time, in a small town called Shapeville, lived a group of curious kids named Timmy, Sarah, and Max. They loved learning about the world around them, especially when it came to shaping things in creative ways.\n\nTimmy loved building with blocks. He could spend hours stacking them up into tall towers and wide bridges. But one day, he wondered if he could make something even more stable. So, he asked his friends if they knew any techniques to make solid objects stronger.\n\nSarah suggested that they try using clay to shape their creations. She had learned about it in school and knew that it could be molded into any shape they wanted. Excited by the idea, the friends decided to give it a go. Once upon a time, in a colorful town, lived Sara and Timmy, friends all around.\nEvery day, they played and laughed, with friends from different lands, so vast.\nOne day, a new student came to their school, looking lost and feeling uncool.\nSara and Timmy held out a hand, showing that in their town, all could stand.\nTogether they played, shared stories and food, embracing differences, all understood.\nWith smiles and hugs, they showed the way, in their town where multicultural integration would always stay.
+    
+  },
+
+{
+    "goal": "Story Generation Model",
+    "when": "2024-10-31T10:29:40.60e",
+    "storyContent": "Year 2 - 2 Wednesday",
+    "generatedStory": "Once upon a time in a small village, there was a young girl named Sarah who possessed a magical ability to change shapes. Sarah had always been different from the other children in the village, but she never felt like she truly belonged until she discovered her extraordinary gift.\n\nAt first, Sarah was scared and confused by her newfound ability. But as she began to experiment with it, she realized that she could transform into any shape she desired. She could become a graceful bird, a mighty lion, or even a delicate flower.\n\nAs Sarah grew more confident in her shape-shifting abilities, she started using them to help others in the village. When a cat was stuck in a tree, Sarah transformed into a ladder to help it down. When a farmer's crops were suffering from lack of water, Sarah changed into a rain cloud and made it rain.\n\nThe villagers soon came to rely on Sarah and her amazing powers. But as Sarah's fame spread, so did jealousy and fear. Some people began to view her as a threat, and they plotted to rid the village of her once and for all.\n\nOne dark night, a group of villagers ambushed Sarah and attempted to capture her. But Sarah was not powerless. With a swift transformation, she turned into a fierce dragon and roared, scaring off her attackers.\n\nRealizing that she could never truly belong in a place where she was seen as a threat, Sarah decided to leave the village behind. She traveled far and wide, using her shape-shifting abilities to help those in need and to explore the wonders of the world.\n\n",
+    
+  },
+
+{
+    "goal": "Story Generation Model",
+    "when": "2024-10-31T10:29:40.60e",
+    "storyContent": "Teachers on control",
+    "generatedStory": "Greetings, my little bunny heads!  As I prepare to leave our vibrant planet and return to my homeworld after many fun days among you, I find myself filled with emotion.  In fact,  because you taught me so many things about respect and friendship, I feel now more connected to you.\n\nIn my time here, I have learned much about your diverse cultures, customs, and languages and to take a piece of this lovely place back to my own world will be the best things that have ever happened to me.\n\n Before I depart, I wish to express my gratitude and create lasting memories through a unique exchange of knowledge and friendship. I spent this night studying all of your languages. I want to know if I am will be able to tell my friends robot in my  galaxy some of your words But can you help me to practice them? Cool!\n\nTo do so, I propose an activity that, one by one, we will say a word , a verb or a noun, in our mother tongues and I will try to create short stories with them.\n\nIt is my hope that these moments spent creating new linguistic relationships will strengthen the ties between our worlds. Do you want to play this? Great! Let's go then.\n",
+    "humanGenQuestion": "Questions: \n1.\n2.\n3.\nAnswers: \n1.\n2.\n3.\n\t\t\t",
+    "AIGenQuestion": "Questions:\n1.  Before we start, are you listening the code of today?\n2. The code is:  words! w, o, r, d, s.   I will say it again: Words: w. o. r. d. s.\n3. Are the young storytellers ready to start their storytelling journey?\n\nAnswers:\n1.  The code is:  words! it is spelled: w, o, r, d, s.   I will say it again: Words: w. o. r. d. s.\n2.  The code is:  words! w, o, r, d, s.   I will say it again: Words: w. o. r. d. s.\n3. Yes, the young storytellers are ready to start their storytelling journey."
+  },
+
+{
+    "goal": "Story Generation Model",
+    "when": "2024-10-31T10:39:30.60e",
+    "storyContent": "Multi language storytelling (Years 2 BOTH)",
+    "promtp_text1": "Can you generate a 1-paragraph story explaining the meaning of the verb <<text_field_value1>> in English but replacing it by the corresponding word in <<text_field_value2>> its pronunciation for children aged <<age_target_approach>>?"
+},
+
+
+]
+
+
+
+
+

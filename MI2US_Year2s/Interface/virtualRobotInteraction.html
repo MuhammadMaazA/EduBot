@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtual Robot Interaction</title>
+    <style>
+        body {
+            font-family: Verdana, sans-serif;
+            background-color: #f5b0b0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            margin: 0;
+        }
+
+        h1 {
+            font-size: 50px;
+            font-weight: bold;
+            text-align: center;
+            color: #060307;
+            margin-bottom: 20px;
+        }
+
+        .container {
+            display: flex;
+            gap: 20px;
+            padding: 20px;
+            background-color: #f28b82;
+            border-radius: 10px;
+            width: 90%; /* Increased width to accommodate extra space */
+            max-width: 900px;
+            box-sizing: border-box;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .left-side {
+            background-color: #000000;
+            width: 200px; /* Fixed width */
+            height: 215px; /* Fixed height */
+            border-radius: 10px;
+            padding: 10px;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+            flex-shrink: 0; /* Prevent shrinking */
+        }
+
+        .right-side {
+            display: flex;
+            flex-direction: column; /* Stack elements vertically */
+            flex-grow: 1;
+            gap: 10px;
+        }
+
+        .text-button-group {
+            display: flex;
+            flex-direction: row; /* Button next to the text area */
+            gap: 10px;
+            align-items: flex-start; /* Align items at the top */
+        }
+
+        .text-area {
+            font-family: 'Arial', sans-serif;
+            padding: 10px;
+            font-size: 16px;
+            border: 2px solid #ff6f61;
+            border-radius: 5px;
+            resize: none;
+            background-color: #f8bfbf;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+            overflow-y: hidden;
+            box-sizing: border-box;
+            width: 100%; /* Fill the available space */
+            height: auto; /* Let the height adjust based on content */
+        }
+
+        .side-button {
+            font-family: 'Arial', sans-serif;
+            width: 120px;
+            height: auto;
+            font-size: 13px;
+            padding: 10px 20px;
+            background-color: #f8bfbf;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .side-button:hover {
+            background-color: #e44141;
+        }
+
+        .player {
+            width: 100%;
+            height: auto;
+            cursor: default; /* Ensures the cursor remains as an arrow */
+            object-fit: contain;
+            
+        }
+
+        /* Overlay that blocks interaction with the player */
+        #overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: transparent; /* Transparent overlay */
+            z-index: 10;
+            pointer-events: none; /*new*/
+            cursor: default; 
+        }
+    </style>
+</head>
+<body>
+    <h1>&#x1F916; Storytime with Alpha-Mini &#x1F916;</h1>
+    <img src="DALLE.png" width="250" height="250">
+    <br>
+
+    <div class="container">
+        <div class="left-side" >
+            <video id="player0" class="player" width="360" height="215"  loop muted>
+                <source src="newCHILI.mp4" type="video/mp4"> 
+            </video>
+            <div id="overlay"></div> 
+        </div>
+
+        <div class="right-side">
+            <div class="text-button-group">
+                <textarea id="story" class="text-area" readonly></textarea>
+                <button class="side-button" onclick="startStory()">NARRATE</button>
+            </div>
+        </div>
+    </div>
+
+    
+    <div class="container" id="QA_C1">
+        <div class="left-side" >
+            <video id="player1" class="player" width="360" height="215"  loop muted>
+                <source src="newCHILI.mp4" type="video/mp4"> 
+            </video>
+            <div id="overlay"></div> 
+        </div>
+        <div class="right-side">
+            <div class="text-button-group">
+                <textarea class="text-area" id="question1" readonly></textarea>
+                <button class="side-button" onclick="askQuestion1()">ASK</button>
+            </div>
+            <img src="DALLE1.png" width="200" height="200">
+            <div class="text-button-group" >
+                <button class="side-button" id="writeAnswer1">Write Your Answer</button>
+                <textarea class="text-area" id="answerText1" style="display: none;"></textarea>
+            </div>
+
+            <div class="text-button-group" id="areaAnswer1" style="display: none;">
+                <textarea class="text-area" id="answer1" readonly></textarea>
+                <button class="side-button" onclick="tellAnswer1()">ANSWER</button>
+            </div>
+            <button class="side-button" id="revealButton1">Reveal Answer</button>
+
+        </div>
+    </div>
+
+    <div class="container" id="QA_C2">
+        <div class="left-side" >
+            <video id="player2" class="player" width="360" height="215"  loop muted>
+                <source src="newCHILI.mp4" type="video/mp4"> 
+            </video>
+            <div id="overlay"></div> 
+        </div>
+        <div class="right-side">
+            <div class="text-button-group">
+                <textarea class="text-area" id="question2" readonly></textarea>
+                <button class="side-button" onclick="askQuestion2()">ASK</button>
+            </div>
+            <img src="DALLE2.png" width="200" height="200">
+
+            <div class="text-button-group" >
+                <button class="side-button" id="writeAnswer2">Write Your Answer</button>
+                <textarea class="text-area" id="answerText2" style="display: none;"></textarea>
+            </div>
+            <div class="text-button-group" id="areaAnswer2" style="display: none;">
+                <textarea class="text-area" id="answer2" readonly></textarea>
+                <button class="side-button" onclick="tellAnswer2()">ANSWER</button>
+            </div>
+            <button class="side-button" id="revealButton2">Reveal Answer</button>
+
+        </div>
+    </div>
+
+    <div class="container" id="QA_C3">
+        <div class="left-side" id="VR3">
+            <video id="player3" class="player" width="360" height="215"  loop muted>
+                <source src="newCHILI.mp4" type="video/mp4"> 
+            </video>
+            <div id="overlay"></div> 
+        </div>
+        <div class="right-side">
+            <div class="text-button-group">
+                <textarea class="text-area" id="question3" readonly></textarea>
+                <button class="side-button" onclick="askQuestion3()">ASK</button>
+            </div>
+            <img src="DALLE3.png" width="200" height="200">
+            <div class="text-button-group" >
+                <button class="side-button" id="writeAnswer3">Write Your Answer</button>
+                <textarea class="text-area" id="answerText3" style="display: none;"></textarea>
+            </div>
+            <div class="text-button-group" id="areaAnswer3" style="display: none;">
+                <textarea class="text-area" id="answer3" readonly></textarea>
+                <button class="side-button" onclick="tellAnswer3()">ANSWER</button>
+            </div>
+            <button class="side-button" id="revealButton3">Reveal Answer</button>
+        </div>
+    </div>
+
+    <button class="side-button" onclick="endSession()">END</button>
+
+    <script>
+
+        window.onload = function () {
+            var player = document.getElementById('player');
+
+            var storedStory = localStorage.getItem('sharedStory');
+            var storedJustQuestions = localStorage.getItem('sharedJustQuestions');
+            var storedJustAnswers = localStorage.getItem('sharedJustAnswers');
+
+            if (storedStory) {
+                var sessionStory = document.getElementById('story');
+                sessionStory.textContent = storedStory;
+                updateHeight(sessionStory);
+            }
+
+            var QA_total= localStorage.getItem('sharedQuestions');
+
+            var sessionQuestion1 = document.getElementById('question1');
+            var sessionQuestion2 = document.getElementById('question2');
+            var sessionQuestion3 = document.getElementById('question3');
+
+            var sessionAnswer1 = document.getElementById('answer1');
+            var sessionAnswer2 = document.getElementById('answer2');
+            var sessionAnswer3 = document.getElementById('answer3');
+
+            if(QA_total==="\n"){
+                document.getElementById('QA_C1').style.display="none";
+                document.getElementById('QA_C2').style.display="none";
+                document.getElementById('QA_C3').style.display="none";              
+
+            }else{
+                const questionsArray = extractItems(storedJustQuestions, "Questions:");
+                console.log(storedJustQuestions)
+                const answersArray = extractItems(storedJustAnswers, "Answers:");
+
+                if (questionsArray.length > 0) {
+                    sessionQuestion1.textContent = questionsArray[0];
+                    sessionAnswer1.textContent = answersArray[0];
+                    updateHeight(sessionQuestion1);
+                    updateHeight(sessionAnswer1);
+
+                    sessionQuestion2.textContent = questionsArray[1];
+                    sessionAnswer2.textContent = answersArray[1];
+                    updateHeight(sessionQuestion2);
+                    updateHeight(sessionAnswer2);
+
+                    sessionQuestion3.textContent = questionsArray[2];
+                    sessionAnswer3.textContent = answersArray[2];
+                    updateHeight(sessionQuestion3);
+                    updateHeight(sessionAnswer3);
+                }
+            } 
+            const currentPath = window.location.pathname;
+            console.log(currentPath); // Outputs something like "/path/to/your/file.html"
+    
+        }
+        
+
+
+        function speakAndAnimate(text,player) {
+            var language = localStorage.getItem('language');
+            const synth = window.speechSynthesis;
+            const chunks = splitTextIntoChunks(text, 160); 
+            let chunkIndex=0; 
+            const utterThis = new SpeechSynthesisUtterance(text);
+
+            if (language == "en") {
+                utterThis.lang = 'en-US';
+            } else if (language == "de") {
+                utterThis.lang = 'de-DE';
+            } else {
+                utterThis.lang = 'fr-FR';
+            }
+
+            function speakChunk() {
+                if (chunkIndex < chunks.length) {
+                    const utterance = new SpeechSynthesisUtterance(chunks[chunkIndex]);
+                    utterance.lang= utterThis.lang;
+
+                    utterance.onstart = function() {
+                        player.play(); // Start animation when speech starts
+                    };
+
+                    utterance.onend = function() {
+                        chunkIndex++;
+                        if (chunkIndex < chunks.length) {
+                            speakChunk(); // Move to the next chunk
+                        } else {
+                            player.pause(); // Stop animation when all speech ends
+                        }
+                    };
+
+                    utterance.onerror = function(event) {
+                        console.error('SpeechSynthesisUtterance.onerror', event);
+                        player.pause(); // Ensure animation stops on error
+                    };
+
+                    synth.speak(utterance);
+                }
+            }
+
+            speakChunk(); // Start speaking from the first chunk
+        }
+
+
+        // function to debug
+        function playVideo(){
+            player.play();
+        }
+
+        // function to debug
+        function pauseVideo(){
+            player.pause();
+            
+        }
+
+        function askQuestion1() {
+            speechSynthesis.cancel(); // Stop any ongoing speech
+            q1 = document.getElementById('question1').value;
+            player = document.getElementById('player1');
+            speakAndAnimate(q1,player);
+        }
+
+        var writeAnswer1= document.getElementById('writeAnswer1');
+        var answerText1 = document.getElementById("answerText1");
+
+        writeAnswer1.addEventListener("click", function(){
+            if(this.innerText=== "Save The Answer"){
+                answerText1.readOnly = "true";
+                this.innerText= "Modify";
+
+            }else{
+                // step 1 : show the text area so the user can write entry
+                answerText1.style.display="block";
+                answerText1.readOnly = false;
+                // change the inner text of this button
+                this.innerText= "Save The Answer";
+            }
+        });
+      
+
+        var buttonReveal1 = document.getElementById('revealButton1');
+        var areaAnswer1= document.getElementById('areaAnswer1');
+        buttonReveal1.addEventListener("click", function(){
+            if(this.innerText=== "Hide Answer"){
+                // step 1: now change the button text  to previous
+                this.innerText = "Reveal Answer"; 
+                // step 2: hide the answer
+                areaAnswer1.style.display= "none";              
+            }else{
+                // step 1 : reveal the answer and update the height of the answer area
+                areaAnswer1.style.display= "block";
+                areaAnswer1.style.display = "flex";
+                updateHeight(document.getElementById('answer1'));
+                // step 2: change the name of the button
+                buttonReveal1.innerText="Hide Answer";
+            }
+        });
+
+        var buttonReveal2 = document.getElementById('revealButton2');
+        var areaAnswer2= document.getElementById('areaAnswer2');
+        buttonReveal2.addEventListener("click", function(){
+            if(this.innerText=== "Hide Answer"){
+                // step 1: now change the button text  to previous
+                this.innerText = "Reveal Answer"; 
+                // step 2: hide the answer
+                areaAnswer2.style.display= "none";              
+            }else{
+                // step 1 : reveal the answer and update the height of the answer area
+                areaAnswer2.style.display= "block";
+                areaAnswer2.style.display = "flex";
+                updateHeight(document.getElementById('answer2'));
+                // step 2: change the name of the button
+                buttonReveal2.innerText="Hide Answer";
+            }
+        });
+
+        var writeAnswer2= document.getElementById('writeAnswer2');
+        var answerText2 = document.getElementById("answerText2");
+
+        writeAnswer2.addEventListener("click", function(){
+            if(this.innerText=== "Save The Answer"){
+                answerText2.readOnly = "true";
+                this.innerText= "Modify";
+
+            }else{
+                // step 1 : show the text area so the user can write entry
+                answerText2.style.display="block";
+                answerText2.readOnly = false;
+                // change the inner text of this button
+                this.innerText= "Save The Answer";
+            }
+        });
+
+        var buttonReveal3 = document.getElementById('revealButton3');
+        var areaAnswer3= document.getElementById('areaAnswer3');
+        buttonReveal3.addEventListener("click", function(){
+            if(this.innerText=== "Hide Answer"){
+                // step 1: now change the button text  to previous
+                this.innerText = "Reveal Answer"; 
+                // step 2: hide the answer
+                areaAnswer3.style.display= "none";              
+            }else{
+                // step 1 : reveal the answer and update the height of the answer area
+                areaAnswer3.style.display= "block";
+                areaAnswer3.style.display = "flex";
+                updateHeight(document.getElementById('answer3'));
+                // step 2: change the name of the button
+                buttonReveal3.innerText="Hide Answer";
+            }
+        });
+
+        var writeAnswer3= document.getElementById('writeAnswer3');
+        var answerText3 = document.getElementById("answerText3");
+
+        writeAnswer3.addEventListener("click", function(){
+            if(this.innerText=== "Save The Answer"){
+                answerText3.readOnly = "true";
+                this.innerText= "Modify";
+
+            }else{
+                // step 1 : show the text area so the user can write entry
+                answerText3.style.display="block";
+                answerText3.readOnly = false;
+                // change the inner text of this button
+                this.innerText= "Save The Answer";
+            }
+        });
+
+        function tellAnswer1() {
+            speechSynthesis.cancel(); // stop any ongoing speech
+            a1 = document.getElementById('answer1').value;
+            player = document.getElementById('player1');
+            speakAndAnimate(a1, player);
+        }
+
+        function askQuestion2() {
+            speechSynthesis.cancel(); // stop any ongoing speech
+            q2 = document.getElementById('question2').value;
+            player = document.getElementById('player2');
+            speakAndAnimate(q2, player);
+        }
+
+        function tellAnswer2() {
+            speechSynthesis.cancel(); // stop any ongoing speech
+            a2 = document.getElementById('answer2').value;
+            player = document.getElementById('player2');
+            speakAndAnimate(a2,player);
+        }
+
+        function askQuestion3() {
+            speechSynthesis.cancel(); // stop any ongoing speech
+            q3 = document.getElementById('question3').value;
+            player = document.getElementById('player3');
+            speakAndAnimate(q3,player);
+        }
+
+        function tellAnswer3() {
+            speechSynthesis.cancel(); // stop any ongoing speech
+            a3 = document.getElementById('answer3').value;
+            player = document.getElementById('player3');
+            speakAndAnimate(a3,player);
+        }
+
+        function startStory() {
+            speechSynthesis.cancel(); // stop any ongoing speech
+            textTS = document.getElementById('story').value;
+            player = document.getElementById('player0');
+            speakAndAnimate(textTS, player);
+        }
+
+        function stopServer() {
+            window.location.href = 'thankfullRobot.html'; // Redirect to the survey page
+        }
+
+        function splitTextIntoChunks(text, chunkSize) {
+            const chunks = [];
+            let currentIndex = 0;
+
+            while (currentIndex < text.length) {
+                let nextChunk = text.slice(currentIndex, currentIndex + chunkSize);
+                const lastSpaceIndex = nextChunk.lastIndexOf(' ');
+
+                if (lastSpaceIndex !== -1 && currentIndex + chunkSize < text.length) {
+                    nextChunk = text.slice(currentIndex, currentIndex + lastSpaceIndex);
+                    currentIndex += lastSpaceIndex + 1;
+                } else {
+                    currentIndex += chunkSize;
+                }
+
+                chunks.push(nextChunk);
+            }
+
+            return chunks;
+        }
+
+        function updateHeight(textValue) {
+            textValue.style.height = 'auto'; // Reset height to shrink/grow as needed
+            textValue.style.height = textValue.scrollHeight + 'px'; // Set height to match text content
+        }
+
+        function extractItems(text, heading) {
+            // Remove the heading (e.g., "Questions:" or "Answers:") and trim any surrounding spaces
+            const cleanedText = text.replace(heading, "").trim();
+
+            // Split the text by matching the numbers followed by a period and space
+            // This regular expression also handles potential leading spaces
+            const delimiter = /\s*\d+\.\s+/g;
+
+            // Split the text using the delimiter and filter out any empty strings
+            const items = cleanedText.split(delimiter).map(item => item.trim()).filter(item => item.length > 0);
+
+            return items;
+        }
+
+        function endSession() {
+            // Stop any ongoing speech
+            speechSynthesis.cancel();
+            var language = localStorage.getItem('language');
+            let message;
+
+            if (language == "en") {
+                message = "Thank you for your attention! I hope you learned a lot. See you next time!";
+            } else if (language == "de") {
+                message = "Vielen Dank für Ihre Aufmerksamkeit! Ich hoffe, du hast viel gelernt. Bis zum nächsten Mal!";
+            } else {
+                message = "Merci pour votre attention ! J'espère que vous avez beaucoup appris. À la prochaine !";
+            }
+
+            const utterThis = new SpeechSynthesisUtterance(message);
+            utterThis.lang = language === 'en' ? 'en-US' : language === 'de' ? 'de-DE' : 'fr-FR';
+
+            utterThis.onstart = function() {
+                        player.play(); // Start animation when speech starts
+            };
+
+         
+            // Define the onend event handler before calling speak
+            utterThis.onend = function(event) {
+                console.log('Speech has ended');   
+                player.pause();        
+                setTimeout(function() {
+                    console.log("Speech ended, 2 seconds passed.");
+                    // Place your next action here
+                    window.location.href = 'survey.html'; // Call the next function or perform any other task
+                }, 3000); 
+            };
+
+            // Speak the message
+            window.speechSynthesis.speak(utterThis);
+
+            const socket = new WebSocket('ws://localhost:10000');
+            socket.addEventListener('open', function (event) {
+                socket.send("exit");
+                closeWindow();
+                socket.close()
+            }); 
+            window.location.href = 'survey.html';
+            }
+
+    </script>
+</body>
+
+</html>

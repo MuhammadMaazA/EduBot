@@ -1,0 +1,346 @@
+<!---this page comes after the beginning page
+but what it does ?
+starts by buttons; 
+    1) generate story: 2 buttons/ options pop out i) generate story[third_1.html] ii) storify your lecture [third_2.html]
+    2) see previously generated stories
+    3) read guidelines
+
+robotInteraction
+-->
+
+<head>
+	<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"> <!-- newly added to avoid stale data-->
+	<meta http-equiv="Pragma" content="no-cache"> <!-- newly added to avoid stale data-->
+	<meta http-equiv="Expires" content="0"> <!-- newly added to avoid stale data-->
+
+
+    <meta charset="utf-8">
+	<meta http-equiv="Cache-control" content="public">
+
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+	<title>Apha-Mini Storytime!</title>
+	<!-- Style taken from https://raw.githubusercontent.com/hypertexthero/htmlformtofile/master/index.html-->
+	<style type="text/css" media="screen">
+		body {font-family:verdana, sans-serif;  font-weight: 700; color:#271d1d; background:#f5b0b0; padding:20px; text-align:center;}
+		h1 {font-size:50px; font-weight: bold; text-align:center; color: #920be1;}
+		label {font-size:20px;font-weight: bold;}
+		button {margin-left:205px; padding:5px; margin-top:5px; font-size:16px;}
+		textarea {width:400px; font-size:16px; font-family: courier, "courier new", monospace; margin:0 0 5px 0; padding:5px; border:1px solid #eee; }
+		select {margin:0 0 5px 0;}
+		::placeholder {color:#d4d2d2;}
+		.disabled{
+			cursor: not-allowed;
+			pointer-events: none;
+		}
+		.color-update{
+			background-color: #007bff;
+		}
+		.slider{
+			width: 400px;
+			height: 30px;
+			background: #d3d3d3;
+			outline: none;
+			opacity: 0.7;
+			-webkit-transition: .2s;
+			transition: opacity .2s;
+		}
+
+		.container{
+			display: flex;
+			justify-content: space-around;
+			margin-bottom: 10px;
+		}
+
+		textarea{
+			width: 75%;
+			height: 100px;
+			margin-top: 10px; 
+			background-color: #ffc4ee;
+			overflow-y: hidden; 
+			border-radius: 20px;
+					
+		}
+
+		#storyPrompt {
+			background-color: #F2F2F2;
+		}
+		#editableText{
+			background-color:#fff9c4;
+			display: none;
+		}
+
+		.button-container {
+			text-align: center;
+			margin-top: 10px;
+		}
+		button{
+			margin: 5px;
+			padding: 5px  10px;
+			font-family: Arial, Helvetica, sans-serif;
+			font-weight: 900;
+			padding: 15px;
+			letter-spacing: 1px;
+			font-size: 20px;
+			background-color: #7cbcff;
+			border: 5px solid rgb(248, 149,s 19);
+			cursor: pointer; /*cursor to hand pointer*/			
+		}
+		button:hover{
+			background-color: #007bff;
+		}
+		#submit-button:hover{
+			background-color: #ffb74d;
+		}	
+		
+		#mainButtons-container{
+			text-align: center;
+			padding: 20px;
+		}
+
+        #mainButtonscontainer2{
+			text-align: center;
+			padding: 20px;
+		}
+		#main-button{
+			font-family: Arial, Helvetica, sans-serif;
+			font-weight: 900;
+			padding: 50px;
+			letter-spacing: 1px;
+			font-size: 40px;
+			background-color: rgb(244, 159, 231);
+			border: 5px solid blueviolet;
+			border-radius: 20px;
+			cursor: pointer; /*cursor to hand pointer*/
+		}
+		#main-button:hover{
+			background-color: blueviolet;
+		}
+		#submit-button{
+			font-family: Arial, Helvetica, sans-serif;
+			font-weight: 900;
+			padding: 15px;
+			letter-spacing: 1px;
+			font-size: 20px;
+			background-color: rgb(255, 220, 78);
+			border: 5px solid rgb(248, 149,19);
+			cursor: pointer; /*cursor to hand pointer*/			
+		}
+		#submit-button:hover{
+			background-color: rgb(248, 149, 19);
+		}
+
+		.container2 {
+			max-width: 600px;
+			margin: 0 auto;
+			padding: 20px;
+			}
+
+		.button2 {
+			padding: 10px 20px;
+			border: none;
+			background-color: #6daeff;
+			color: #fcfcfc;
+			border-radius: 5px;
+			cursor: pointer;
+			margin-top: 10px;
+		}
+
+		.button2:hover {
+			background-color: #1d34aa;
+		}
+
+		.button-group2 {
+			display: flex;
+			justify-content: space-between;
+		}
+
+		.header2 {
+			font-size: 20px;
+			font-weight: bold;
+			margin-bottom: 20px;
+		}
+
+		.checkbox-label, .radio-label {
+			display:list-item;
+			margin-bottom: 10px;
+			padding: 5px;
+			background-color: #b6ebdf;
+			border-radius: 5px;
+			cursor: pointer;
+			transition: background-color 0.3s ease;
+		}
+
+		.checkbox-label:hover, .radio-label:hover {
+			background-color: #12a1c4;
+		}
+
+		.container_form {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            max-width: 700px;
+            width: 100%;
+            margin: 20px auto;
+            overflow: hidden;
+        }
+        h2 {
+            color: #6a1b9a;
+            text-align: center;
+            font-size: 1.5em;
+            margin-bottom: 30px;
+        }
+        .sub-title {
+            color: #6a1b9a;
+            text-align: center;
+            font-size: 1em;
+            background: #6a1b9a;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            margin: -20px auto 30px auto;
+            display: inline-block;
+        }
+        .question {
+            margin-bottom: 30px;
+            position: relative;
+            padding: 10px;
+            border-radius: 10px;
+        }
+        .highlight {
+            background-color: #b3e5fc;
+        }
+        .question label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+        .slider-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .slider_form {
+            width: 100%;
+            margin: 0 10px;
+        }
+        .label_form {
+            display: flex;
+            align-items: center;
+        }
+        .label_form span {
+            margin-left: 5px;
+            font-weight: bold;
+            color: #6a1b9a;
+        }
+        .comments {
+            margin-bottom: 30px;
+        }
+        .comments textarea {
+            width: 100%;
+            height: 100px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+            font-size: 1em;
+            resize: vertical;
+        }
+       
+        .submit-btn {
+            background-color: #6a1b9a;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1.2em;
+            transition: background-color 0.3s ease;
+            display: block;
+            width: 100%;
+            text-align: center;
+        }
+        .submit-btn:hover {
+            background-color: #4a148c;
+        }
+        .blue { background-color: #b3e5fc; }
+        .green { background-color: #c8e6c9; }
+        .yellow { background-color: #fff9c4; }
+        .orange { background-color: #ffe0b2; }
+        .purple { background-color: #d1c4e9; }
+        .pink { background-color: #f8bbd0; }
+		
+	</style>
+</head>
+ 
+<body >
+    <h1> &#x1F916; &#x1F916; Storytime with Alpha-Mini &#x1F916; &#x1F916;  !</h1>
+	<br>
+	
+	<div id = "sessionDiv"> 
+		<label> &#x1F916; : Here's your session summary! </label><br>
+		<br>
+		<textarea id="sessionSummary" readonly ></textarea><br>
+	</div>
+		
+        <!--we see these buttons once start storytime is clicked-->
+		<label> &#x1F916; : This button will be available once the session is ready :  </label><br>
+        <div id = "mainButtonscontainer2">
+			<button id = "main-button" onclick="storytimeVirtual(this)" disabled >Start the Storytime with Virtual Alpha-Mini</button> 
+		</div>
+	</div>
+</body>
+ 
+<script>
+
+	var ws = new WebSocket("ws://localhost:10000/");
+			ws.onmessage = function(event) {
+				var message = event.data;		
+				console.log(message);
+				if(message =="allow"){
+					document.getElementById("main-button").disabled= false; 
+				}
+			};
+			
+	
+
+	window.onload = function(){
+		var storedText = localStorage.getItem('sharedText');
+		if (storedText) {
+			var sessionBox= document.getElementById('sessionSummary');
+			sessionBox.textContent= storedText;
+			updateHeight(sessionBox)
+		}
+
+	}
+
+	document.getElementById('mainButtonscontainer2').addEventListener('click', function(event){
+		var button= document.getElementById("main-button");
+		if(button.disabled){
+			console.log("click")
+			alert("To enable this button, please wait until the image generation is completed.");
+		} else {
+			button.click();
+		}
+	});
+
+	function updateHeight(textValue){
+		textValue.style.height = 'auto'; // reset height to shrink grow as needed
+		textValue.style.height = textValue.scrollHeight + 'px'; // set height to to the text value height
+	}
+
+	//storytime with virtual robot
+	function storytimeVirtual(button){
+		window.location.href = 'virtualRobotInteraction.html'; // redirecring to the page for the virtual robot interaction
+	}
+
+	const stopServer = () => {
+		window.location.href = 'survey.html'; // Redirect to the survey page
+	}
+
+	
+</script>
+ 
+</html>

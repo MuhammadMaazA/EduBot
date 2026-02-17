@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Welcome Page</title>
+
+    <style>
+
+        body, html {
+
+            font-family: 'Arial', sans-serif;
+
+            background: #f5b0b0;
+
+            margin: 0;
+
+            padding: 0;
+
+            height: 100%;
+
+            display: flex;
+
+            justify-content: center;
+
+            align-items: center;
+
+        }
+
+        .container {
+
+            background-color: #fdc1c1;
+
+            padding: 30px;
+
+            border-radius: 10px;
+
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+
+            text-align: center;
+
+        }
+
+        h2 {
+
+            color: #160521;
+
+            font-size: 2em;
+
+            margin-bottom: 20px;
+
+        }
+
+        p {
+
+            color: #010001;
+
+            font-size: 2em;
+
+            margin-bottom: 20px;
+
+        }
+
+        input[type="text"] {
+
+            width: 80%;
+
+            padding: 10px;
+
+            margin: 20px 0;
+
+            border: 1px solid #ccc;
+
+            border-radius: 5px;
+
+            font-size: 1em;
+
+        }
+
+        button {
+
+            background-color: #e75656;
+
+            color: white;
+
+            border: none;
+
+            padding: 10px 20px;
+
+            border-radius: 5px;
+
+            cursor: pointer;
+
+            font-size: 1.2em;
+
+            transition: background-color 0.3s ease;
+
+        }
+
+        button:hover {
+
+            background-color:#a14242;
+
+        }
+
+        .error {
+
+            color: red;
+
+            font-size: 1em;
+
+            margin-top: 20px;
+
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+
+
+<div class="container">
+
+    <h2>  &#x1F916; &#x1F916; Welcome to Storytime with Alpha-Mini &#x1F916; &#x1F916;  !</h2>
+
+    <p>Please enter the access code to continue: </p>
+
+    <input type="text" id="accessCode" placeholder="Enter Access Code">
+
+    <button onclick="checkAccessCode()">Submit</button>
+
+    <p class="error" id="errorMessage"></p>
+
+</div>
+
+
+
+<script>
+
+    function checkAccessCode() {
+
+        const correctCode = "9999"; // Replace with the actual access code
+
+        const enteredCode = document.getElementById('accessCode').value;
+
+        const errorMessage = document.getElementById('errorMessage');
+
+        if (enteredCode === correctCode) {
+            window.location.href = 'secondary.html'; // Redirect to the main page
+        } else {
+            errorMessage.textContent = "Wrong access code. Please try again.";
+        }
+
+    }
+
+</script>
+
+
+
+</body>
+
+</html>

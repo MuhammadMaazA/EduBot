@@ -1,0 +1,88 @@
+<head>
+    <meta charset="utf-8">
+	<meta http-equiv="Cache-control" content="public">
+
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+	<title>Apha-Mini Storytime!</title>
+	<!-- Style taken from https://raw.githubusercontent.com/hypertexthero/htmlformtofile/master/index.html-->
+	<style type="text/css" media="screen">
+		h1 {font-size:30px; font-weight: bold; text-align:center; color: #0b0b0b;}
+        body{ background-color: #9470ff; text-align: center;}
+		label {font-size:20px;font-weight: bold;}
+		button {margin-left:205px; padding:5px; margin-top:5px; font-size:16px;}
+		textarea {width:400px; font-size:16px; font-family: courier, "courier new", monospace; margin:0 0 5px 0; padding:5px; border:1px solid #dedbff; }
+		select {margin:0 0 5px 0;}
+		::placeholder {color:#d4d2d2;}
+		.disabled{
+			cursor: not-allowed;
+			pointer-events: none;
+		}
+		.button-container {
+			text-align: center;
+			margin-top: 10px;
+		}
+		button{
+			margin: 5px;
+			padding: 5px  10px;
+			font-family: Arial, Helvetica, sans-serif;
+			font-weight: 900;
+			padding: 15px;
+			letter-spacing: 1px;
+			font-size: 20px;
+			background-color: #a749ff;
+			border: 5px solid rgb(248, 149,s 19);
+			cursor: pointer; /*cursor to hand pointer*/	
+            border-radius: 20px;		
+            align-items: center;
+		}
+		button:hover{
+			background-color: #6a00ff;
+		}
+        textarea{
+			width: 75%;
+			height: 100px;
+			margin-top: 10px; 
+			background-color: #d2b6ff;
+			overflow-y: hidden; 
+			border-radius: 20px;
+            font-weight: bold;					
+		}
+
+       
+
+		
+	
+	</style>
+</head>
+ 
+<body>
+    <div id="userGuide" style>
+        <h1>&#x1F916; USER GUIDE &#x1F916; </h1>
+        <textarea id="userGuideText" readonly>
+Welcome to Alpha-Mini Story Generation. We believe that storytelling has a huge power in teaching children developpement. Hence this model promotes two  main functions: generating stories for different age group and levels, and storyfying course content with the help of artificial intelligence. It is also possible to regenerate, edit and modify with suggestion the generated story. Also this model allows to generate homework questions that recognises cognitive stage of different age groups. The storytelling models can be implemented in three different languages; French, English and German. If teacher prefers to follow the session in class with a teaching assistant, it is also possible! Our model is supported by a Virtual Robot Assistant at the end to narrate the story, ask questions , give answers in the class! If you have availability to a Humanoid Robot, you can use this model with it too. Are you ready to start your adventure ? </textarea>
+        <br>
+        <br>
+        <button onclick="goBack()"> &#x1F916; BACK</button>
+        <button onclick="start()">&#x1F916; START </button>
+
+    </div>
+</body>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        //goal :  when the content is loaded update the height according to text
+        // return the text area you want to update
+        var textGuide = document.getElementById('userGuideText');
+        textGuide.style.height='auto';
+        textGuide.style.height= textGuide.scrollHeight + 'px';
+
+    });
+    function goBack(){
+        window.location.href='secondary.html';
+    }
+    function start(){
+        window.location.href= 'secondary2.html';
+    }
+
+</script>

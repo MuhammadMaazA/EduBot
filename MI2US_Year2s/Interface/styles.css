@@ -1,0 +1,113 @@
+/* I always reset all the html elements */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: sans-serif;
+    min-height: 100vh;
+    color: #555;
+}
+
+table {
+    width: 1000px;
+    margin: 30px auto;
+    border-collapse: collapse;
+}
+
+table th, table td {
+    padding: 10px;
+    border: thin solid #d4d4d4;
+    text-align: center;
+    background-color: #fff;
+    word-wrap: break-word; /* Ensure words break and do not overflow */
+}
+
+table th {
+    background-color: #f4f4f4;
+    padding: 10px 0;
+}
+
+table td {
+    width: 18%; /* Default width for other columns */
+}
+
+table img {
+    width: 70%;
+}
+
+table td.total-price {
+    font-weight: bold;
+    font-size: 22px;
+}
+
+table a {
+    text-decoration: none;
+    color: darkred;
+    background-color: #ffecef;
+    padding: 10px 15px;
+}
+
+table a:active {
+    background-color: #ccf4d6;
+    color: green;
+}
+
+table select {
+    padding: 10px;
+    width: 200px;
+    font-size: 16px;
+    border: thin solid #d4d4d4;
+    background-color: transparent;
+}
+
+table select:focus {
+    outline: none;
+}
+
+table img {
+    width: 60%;
+}
+
+/* Set specific widths for each column */
+table th:nth-child(1), table td:nth-child(1) {
+    width: 10%;
+}
+
+table th:nth-child(2), table td:nth-child(2) {
+    width: 10%;
+}
+
+table th:nth-child(3), table td:nth-child(3) {
+    width: 10%;
+}
+
+table th:nth-child(4), table td:nth-child(4) {
+    width: 40%; /* Increased width for Generated Story */
+}
+
+table th:nth-child(5), table td:nth-child(5) {
+    width: 15%;
+}
+
+table th:nth-child(6), table td:nth-child(6) {
+    width: 15%;
+}
+
+button{
+    margin: 5px;
+    padding: 5px  10px;
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: 900;
+    padding: 15px;
+    letter-spacing: 1px;
+    font-size: 20px;
+    background-color: #7cbcff;
+    border: 5px solid rgb(248, 149,s 19);
+    cursor: pointer; /*cursor to hand pointer*/			
+}
+button:hover{
+    background-color: #007bff;
+}
