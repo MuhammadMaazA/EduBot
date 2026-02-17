@@ -41,3 +41,12 @@ Thumbs.db
 .env
 *.key
 credentials.json
+
+# Documentation files (kept locally, not on GitHub)
+Resources.md
+CODEBASE_ANALYSIS.md
+REACHY_MINI_GUIDE.md
+QLORA_GUIDE.md
+SETUP_GUIDE.md
+QUICK_START.md
+PROGRESS_REPORT.md
