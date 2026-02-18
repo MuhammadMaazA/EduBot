@@ -28,7 +28,6 @@ Building an **AI-powered educational robot** using the **Reachy Mini robot** and
 
 ### Hardware:
 - Reachy Mini robot (Pollen Robotics)
-- Development laptop with GPU (for model fine-tuning)
 
 ### Software:
 - **Python 3.x** - Main programming language
