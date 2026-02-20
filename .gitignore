@@ -76,3 +76,9 @@ survey.json
 
 # Node modules (if any)
 node_modules/
+
+# Certificate files
+*.pem
+*.crt
+*.key
+*.cert
