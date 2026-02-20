@@ -1,14 +1,11 @@
-# Unpublished research papers - not for public distribution
-*.pdf
-
 # Python
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
 .Python
+venv*/
 env/
-venv/
 ENV/
 build/
 develop-eggs/
@@ -26,28 +23,56 @@ wheels/
 .installed.cfg
 *.egg
 
-# IDEs
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
+# Virtual Environment
+venv39/
+venv/
 
-# OS
-.DS_Store
-Thumbs.db
+# Cache directories
+.cache/
+*.cache
+.pip_cache/
 
-# API Keys and Secrets
+# Logs
+logs/
+*.log
+
+# Environment variables
 .env
 *.key
 credentials.json
 
-# Documentation files (kept locally, not on GitHub)
-Resources.md
-CODEBASE_ANALYSIS.md
-REACHY_MINI_GUIDE.md
-QLORA_GUIDE.md
-SETUP_GUIDE.md
-QUICK_START.md
-PROGRESS_REPORT.md
-/.claude
+# Model files (downloaded automatically)
+*.bin
+*.safetensors
+*.pt
+*.pth
+
+# Temporary files
+tmp/
+*.tmp
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Generated images
+DALLE*.png
+*.png
+*.jpg
+*.jpeg
+
+# Session data
+savedSessions.json
+survey.json
+
+# Node modules (if any)
+node_modules/

@@ -1,19 +1,27 @@
+"""
+Image generation module using DALL-E 3 API.
+
+Uses OpenAI DALL-E 3 for generating story illustrations.
+Requires OPENAI_API_KEY environment variable to be set.
+"""
 import os
 from io import BytesIO
-import openai                  # for handling error types
-from datetime import datetime  # for formatting date returned with images
-import base64                  # for decoding images if recieved in the reply
-import requests                # for downloading images from URLs
-from PIL import Image          # pillow, for processing image types
-import tkinter as tk           # for GUI thumbnails of what we got
-from PIL import ImageTk        # for GUI thumbnails of what we got
+import openai
+from datetime import datetime
+import base64
+import requests
+from PIL import Image
+import tkinter as tk
+from PIL import ImageTk
 from openai import OpenAI
 import storytelling as st
 
-OpenAI.api_key = "YOUR_KEY"
+# Get API key from environment variable (set in startup script or .env file)
+api_key = os.getenv("OPENAI_API_KEY")
+if not api_key or api_key == "YOUR_KEY":
+    raise ValueError("OPENAI_API_KEY environment variable not set. Please set it in start_edubot_persistent.sh or .env file")
 
-os.environ["OPENAI_API_KEY"] = "YOUR_KEY"
-client = OpenAI() 
+client = OpenAI(api_key=api_key) 
 
 def generate_image(prompt): 
     image_params = {

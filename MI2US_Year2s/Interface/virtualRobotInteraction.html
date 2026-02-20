@@ -570,7 +570,7 @@
             // Speak the message
             window.speechSynthesis.speak(utterThis);
 
-            const socket = new WebSocket('ws://localhost:10000');
+            const socket = new WebSocket('ws://' + window.location.hostname + ':10000');
             socket.addEventListener('open', function (event) {
                 socket.send("exit");
                 closeWindow();

@@ -416,7 +416,7 @@
 		it handles it there
 		*/
 
-		const socket =new WebSocket('ws://localhost:10000');
+		const socket =new WebSocket('ws://' + window.location.hostname + ':10000');
         socket.addEventListener('open', function (event) {
 			socket.send(JSON.stringify(dict));  
 			socket.close();	

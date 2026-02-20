@@ -1,4 +1,9 @@
-#for the virtual robot part 
+"""
+EduBot Main Application
+
+Educational robot storytelling system with AI-powered story generation.
+Based on MI2US_Year2s project: https://github.com/dtozadore/MI2US_Year2s
+"""
 import asyncio
 import json
 import os
@@ -65,7 +70,7 @@ class StorytellingApp:
 
     def greet(self):   
        
-        # TODO sometimes virtual robot doesnt say some words
+        # Note: Virtual robot text-to-speech may occasionally skip words
         print("Executing state GREETINGS")
         global local_data
         local_data = server.await_response()
@@ -439,13 +444,15 @@ def main():
     app = StorytellingApp()
     print("Starting the server")
     server.start_thread()  
-    #it is expected form users to put this after their home path to storytellerRobot directory
-    home_path = Path.home() / 'storytellerRobot' #e ex; C:\Users\Nur
-    index_html_path= home_path/ 'secondary.html'
+    
+    # Get current directory for HTML files
+    current_dir = Path(__file__).parent.resolve()
+    index_html_path = current_dir / 'storyGeneration.html'
     
     print("Started the server") 
-    print("Opening:", index_html_path)
-    webbrowser.open_new_tab(index_html_path)
+    print(f"HTML files location: {current_dir}")
+    print(f"\nOpen in browser: http://$(hostname -f 2>/dev/null || hostname):8080/storyGeneration.html")
+    print("   Or navigate to: http://localhost:8080/storyGeneration.html\n")
     config_language()
     print("configured the language")
     print("Starting the server")

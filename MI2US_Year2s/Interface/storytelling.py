@@ -1,25 +1,44 @@
+"""
+Storytelling module using Phi-3-mini with Phi-Ed fine-tuning.
+
+Models:
+- Base Model: microsoft/Phi-3-mini-128k-instruct
+  Source: https://huggingface.co/microsoft/Phi-3-mini-128k-instruct
+- Fine-tuned Adapter: Mortadha/Phi-Ed-25072024
+  Source: https://huggingface.co/Mortadha/Phi-Ed-25072024
+
+Includes automatic fallback to OpenAI API if local model fails.
+"""
 import os
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from peft import PeftModel
+from openai import OpenAI
 
 BASE_MODEL = "microsoft/Phi-3-mini-128k-instruct"
 ADAPTER_MODEL = "Mortadha/Phi-Ed-25072024"
 
 _tokenizer = None
 _model = None
+_openai_client = None
 
 
 def _load_model():
     global _tokenizer, _model
     if _model is None:
         print("Loading Phi-Ed model (first call only)...")
-        _tokenizer = AutoTokenizer.from_pretrained(BASE_MODEL, trust_remote_code=True)
+        _tokenizer = AutoTokenizer.from_pretrained(BASE_MODEL, trust_remote_code=False)
+        
+        # Set pad token for Phi models
+        if _tokenizer.pad_token is None:
+            _tokenizer.pad_token = _tokenizer.eos_token
+        
         base = AutoModelForCausalLM.from_pretrained(
             BASE_MODEL,
             torch_dtype=torch.float16 if torch.cuda.is_available() else torch.float32,
             device_map="auto",
-            trust_remote_code=True,
+            trust_remote_code=False,  # Use transformers built-in Phi-3 code
+            attn_implementation="eager",  # Fix DynamicCache compatibility
         )
         _model = PeftModel.from_pretrained(base, ADAPTER_MODEL)
         _model.eval()
@@ -27,20 +46,89 @@ def _load_model():
     return _tokenizer, _model
 
 
-def _hf_chat(messages, temperature=0.7, max_new_tokens=1000):
-    tokenizer, model = _load_model()
-    prompt = tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
-    inputs = tokenizer(prompt, return_tensors="pt").to(model.device)
-    with torch.no_grad():
-        outputs = model.generate(
-            **inputs,
-            max_new_tokens=max_new_tokens,
+def _get_openai_client():
+    """Initialize OpenAI client if API key is available"""
+    global _openai_client
+    if _openai_client is None:
+        api_key = os.getenv("OPENAI_API_KEY")
+        if api_key and api_key != "YOUR_KEY":
+            _openai_client = OpenAI(api_key=api_key)
+            print("OpenAI client initialized for fallback.")
+        else:
+            print("Warning: OPENAI_API_KEY not set. Fallback to OpenAI will not work.")
+    return _openai_client
+
+
+def _openai_chat(messages, temperature=0.7, max_new_tokens=1000):
+    """Fallback function using OpenAI API"""
+    client = _get_openai_client()
+    if client is None:
+        raise RuntimeError("OpenAI client not available. Set OPENAI_API_KEY environment variable.")
+    
+    # Convert messages format if needed (OpenAI expects role/content format)
+    formatted_messages = []
+    has_user_message = False
+    
+    for msg in messages:
+        if isinstance(msg, dict) and "role" in msg and "content" in msg:
+            formatted_messages.append(msg)
+            if msg["role"] == "user":
+                has_user_message = True
+        else:
+            # Handle other formats if needed
+            formatted_messages.append(msg)
+    
+    # OpenAI requires at least one user message
+    # If only system message exists, add a simple user prompt
+    if not has_user_message and formatted_messages:
+        # Check if last message is system, if so add user message
+        if formatted_messages[-1].get("role") == "system":
+            formatted_messages.append({"role": "user", "content": "Please proceed with the task."})
+    
+    try:
+        response = client.chat.completions.create(
+            model="gpt-3.5-turbo",  # Using GPT-3.5-turbo as fallback
+            messages=formatted_messages,
             temperature=temperature,
-            do_sample=temperature > 0,
-            pad_token_id=tokenizer.eos_token_id,
+            max_tokens=max_new_tokens,
         )
-    new_tokens = outputs[0][inputs["input_ids"].shape[1]:]
-    return tokenizer.decode(new_tokens, skip_special_tokens=True).strip()
+        return response.choices[0].message.content.strip()
+    except Exception as e:
+        print(f"OpenAI API error: {e}")
+        raise
+
+
+def _hf_chat(messages, temperature=0.7, max_new_tokens=1000):
+    """
+    Try Phi-3-mini first, fallback to OpenAI API if it fails.
+    """
+    try:
+        # Try Phi-3-mini first
+        tokenizer, model = _load_model()
+        prompt = tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
+        inputs = tokenizer(prompt, return_tensors="pt").to(model.device)
+        with torch.no_grad():
+            outputs = model.generate(
+                **inputs,
+                max_new_tokens=max_new_tokens,
+                temperature=temperature,
+                do_sample=temperature > 0,
+                pad_token_id=tokenizer.eos_token_id,
+            )
+        new_tokens = outputs[0][inputs["input_ids"].shape[1]:]
+        result = tokenizer.decode(new_tokens, skip_special_tokens=True).strip()
+        print("[SUCCESS] Generated using Phi-3-mini (local model)")
+        return result
+    except Exception as e:
+        print(f"[WARNING] Phi-3-mini generation failed: {e}")
+        print("[INFO] Falling back to OpenAI API...")
+        try:
+            result = _openai_chat(messages, temperature=temperature, max_new_tokens=max_new_tokens)
+            print("[SUCCESS] Generated using OpenAI API (fallback)")
+            return result
+        except Exception as fallback_error:
+            print(f"[ERROR] OpenAI fallback also failed: {fallback_error}")
+            raise RuntimeError(f"Both Phi-3-mini and OpenAI API failed. Phi-3 error: {e}, OpenAI error: {fallback_error}")
 
 
 def generate_response(prompt, content_message="You are a helpful and friendly assistant.Babysitter: easy going, understable language, engaging, filled with curiosity, and with a fantastic plot twist to captivate children",

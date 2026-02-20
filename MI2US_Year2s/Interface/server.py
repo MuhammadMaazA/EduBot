@@ -35,7 +35,7 @@ async def handler(websocket, path, callback):
 def run_server(callback):
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
-    start_server = websockets.serve(functools.partial(handler, callback=callback), "localhost", 10000)
+    start_server = websockets.serve(functools.partial(handler, callback=callback), "0.0.0.0", 10000)
     loop.run_until_complete(start_server)
     loop.run_forever()
 

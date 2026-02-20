@@ -562,7 +562,7 @@ Answers:
 	});
 
 	const stopServer = () => {
-        const socket = new WebSocket('ws://localhost:10000');
+        const socket = new WebSocket('ws://' + window.location.hostname + ':10000');
         socket.addEventListener('open', function (event) {
             socket.send("exit");
 			closeWindow();
@@ -609,7 +609,7 @@ Answers:
 	regenerateButton2.addEventListener('click',regenerateQuestions);
 
 	function regenerateQuestions(){
-		const socket = new WebSocket('ws://localhost:10000');
+		const socket = new WebSocket('ws://' + window.location.hostname + ':10000');
 		socket.addEventListener('open', function(event){
 			socket.send("Regenerate ");
 			socket.close;
@@ -632,7 +632,7 @@ Answers:
 	}	
 
 	function submitModifiedQuestions(){
-		const socket = new WebSocket('ws://localhost:10000');
+		const socket = new WebSocket('ws://' + window.location.hostname + ':10000');
 		socket.addEventListener('open', function(event){
 			var modified_questions = question_ai_box.value;
 			socket.send("Modified " + modified_questions);
@@ -643,7 +643,7 @@ Answers:
 
 	// when the user wants to see ai generated answers to the questions
 	const sendToSeeAns = () => {
-		const socket = new WebSocket('ws://localhost:10000');
+		const socket = new WebSocket('ws://' + window.location.hostname + ':10000');
 		socket.addEventListener('open', function(event){
 			var answer = document.querySelector('input[name="submitHum"]:checked').value;
 			if(answer==0){ 
@@ -665,7 +665,7 @@ Answers:
 	function goNextStep(){
 		if (globalCounter>0){
 			console.log("getting directed  to the robot interaction phase");
-			const socket =new WebSocket('ws://localhost:10000');
+			const socket =new WebSocket('ws://' + window.location.hostname + ':10000');
 			socket.addEventListener('open', function (event) {
 				socket.send("robot decision executed");  
 				socket.close();	
@@ -723,7 +723,7 @@ Answers:
 		
 
 			
-			const socket = new WebSocket('ws://localhost:10000');
+			const socket = new WebSocket('ws://' + window.location.hostname + ':10000');
 			socket.addEventListener('open', function(event){
 			socket.send("startagain" );
 			socket.close;
@@ -742,7 +742,7 @@ Answers:
 	}
 	// kept all the quesitons of AI 
 	keepButton2.addEventListener("click", function(){
-		const socket = new WebSocket('ws://localhost:10000');
+		const socket = new WebSocket('ws://' + window.location.hostname + ':10000');
 		socket.addEventListener('open', function(event){
 			socket.send("keepQuestions");
 
@@ -797,7 +797,7 @@ Answers:
 
 		var text_to_keep = storyPrompt.value;			
 		var message = "keepStory" + " " + text_to_keep; 
-		const socket = new WebSocket('ws://localhost:10000');
+		const socket = new WebSocket('ws://' + window.location.hostname + ':10000');
 		socket.addEventListener('open', function(event){
 			socket.send(message);
 			socket.close();
@@ -863,7 +863,7 @@ Answers:
 	regenerateButton.addEventListener('click',regenerateStory);
 
 	function regenerateStory(){
-		const socket = new WebSocket('ws://localhost:10000');
+		const socket = new WebSocket('ws://' + window.location.hostname + ':10000');
         socket.addEventListener('open', function (event) {
 			var text_to_regenerate = storyPrompt.value;			
 			var message = "regenerate" + " " + text_to_regenerate; 
@@ -878,7 +878,7 @@ Answers:
 	}
 
 	function saveStory(){
-		const socket = new WebSocket('ws://localhost:10000');
+		const socket = new WebSocket('ws://' + window.location.hostname + ':10000');
         socket.addEventListener('open', function (event) {
 			// now save button is clicked so show to question part
 			document.getElementById("questionPart").style.display= "block";
@@ -944,7 +944,7 @@ Answers:
 		hideSlider();
 	}
 
-	var ws = new WebSocket("ws://localhost:10000/");
+	var ws = new WebSocket('ws://' + window.location.hostname + ':10000/');
         
     ws.onmessage = function(event) {
 		var message = event.data;		
@@ -999,7 +999,7 @@ Answers:
 		if(!deButton.checked && !frButton.checked && !enButton.checked){
 			alert("Pick a language");
 		}else{
-			const socket = new WebSocket('ws://localhost:10000');
+			const socket = new WebSocket('ws://' + window.location.hostname + ':10000');
 			socket.addEventListener('open', function (event) {
 				some.style.display= "none";
 				some.disabled=true;
@@ -1016,7 +1016,7 @@ Answers:
     }
 
 	const sendSelectedQuestions = () => {
-		const socket = new WebSocket('ws://localhost:10000');
+		const socket = new WebSocket('ws://' + window.location.hostname + ':10000');
         socket.addEventListener('open', function (event) {
 			const checkboxes = document.querySelectorAll('input[type="checkbox"]:checked');
 			var selectedOptions = [];
@@ -1073,7 +1073,7 @@ Answers:
 				radio.disabled=true;
 			});
 
-			const socket =new WebSocket('ws://localhost:10000');
+			const socket =new WebSocket('ws://' + window.location.hostname + ':10000');
 			socket.addEventListener('open', function (event) {
 				var question = document.querySelector('input[name="question"]:checked').value;
 					socket.send(question);  // sends 'yes' or 'no'
@@ -1118,7 +1118,7 @@ Answers:
 
 	// listen to suggestions to change the story 
 	const submitSuggestions= () => {
-		const socket =new WebSocket('ws://localhost:10000');
+		const socket =new WebSocket('ws://' + window.location.hostname + ':10000');
         socket.addEventListener('open', function (event) {
 			message = document.getElementById("suggestions").value;
 			socket.send("suggestions :" + message);
@@ -1147,7 +1147,7 @@ Answers:
 				radio.disabled=true;
 			});
 
-			const socket =new WebSocket('ws://localhost:10000');
+			const socket =new WebSocket('ws://' + window.location.hostname + ':10000');
 			socket.addEventListener('open', function (event) {
 				var answer = document.querySelector('input[name="ai_answer"]:checked').value;
 				if(answer== '0'){ // means i ask for no help im gonna write my questions 
@@ -1206,7 +1206,7 @@ Answers:
 			console.log("Validation passed: proceeding with submission");
 			document.getElementById("storyClass").style.display = "block";
 
-			const socket = new WebSocket('ws://localhost:10000');
+			const socket = new WebSocket('ws://' + window.location.hostname + ':10000');
 			socket.addEventListener('open', function (event) {
 				some.disabled = true;
 				some.classList.add('disabled');
@@ -1248,7 +1248,7 @@ Answers:
 	const sendQuestionToAskData = (some) => {
 		some.disabled=true;
 
-		const socket =new WebSocket('ws://localhost:10000');
+		const socket =new WebSocket('ws://' + window.location.hostname + ':10000');
         socket.addEventListener('open', function (event) {
 		//TODO: MAYBE DISABLE CLICKING ON THE SUBMIT BUTTON
 			questions_box = document.getElementById("questions_to_ask");
@@ -1320,7 +1320,7 @@ Answers:
 
         console.log(dict)
 
-        const socket =new WebSocket('ws://localhost:10000');
+        const socket =new WebSocket('ws://' + window.location.hostname + ':10000');
         socket.addEventListener('open', function (event) {
 			socket.send(JSON.stringify(dict));  
 			socket.close();	
