@@ -92,22 +92,6 @@ EduBot/
 - Late Elementary
 - Preteens
 
-### AI Levels
-
-- Level 0: Use story as-is
-- Level 1: Simple AI enhancement
-- Level 2: Creative AI enhancement
-- Level 3: Complete story continuation
-- Level 4: Generate story from questions
-- Level 5-7: Lecture content generation
-
-## Requirements
-
-- **Python**: 3.9 or higher
-- **RAM**: 16GB+ recommended (for local Phi-3 model)
-- **GPU**: Optional but recommended (8GB+ VRAM)
-- **Disk Space**: Models are included in `.cache/huggingface/` (~7.2GB). Additional ~1GB for dependencies.
-
 ## Troubleshooting
 
 ### Model Loading
