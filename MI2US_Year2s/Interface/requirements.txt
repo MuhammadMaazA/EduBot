@@ -22,3 +22,8 @@ tqdm==4.66.5
 typing_extensions==4.12.2
 urllib3==2.2.2
 websockets==13.0
+datasets>=2.19
+accelerate>=0.30
+bitsandbytes>=0.43
+# Optional — vLLM backend (requires sm_7.0+ GPU, e.g. RTX 3090)
+# pip install vllm

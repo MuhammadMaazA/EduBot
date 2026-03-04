@@ -21,7 +21,8 @@ if [ -f "$EDUBOT_DIR/logs/edubot.pid" ]; then
 fi
 
 # Kill by process name (backup)
-pkill -f "python.*main.py" 2>/dev/null || true
+pkill -f "python.*main.py"      2>/dev/null || true
+pkill -f "python.*qa_server.py" 2>/dev/null || true
 pkill -f "python.*http.server.*8080" 2>/dev/null || true
 
 echo "[SUCCESS] EduBot stopped"

@@ -1,15 +1,16 @@
-# EduBot - Educational Robot Storytelling System
+# EduBot - Educational AI Assistant
 
-AI-powered educational robot using Phi-3-mini (with Phi-Ed fine-tuning) for interactive storytelling and multicultural integration in classrooms.
+AI-powered educational robot using Phi-3-mini (with fine-tuning support) for conversational Q&A and multicultural classroom integration.
 
 ## Features
 
-- **Story Generation**: Age-appropriate stories for different educational levels
-- **Multi-language Support**: English, French, German
-- **Question Generation**: AI-generated questions with answers
+- **Q&A Dialogue Mode** (default): Back-and-forth conversational Q&A — ask any question and get a clear answer, with full conversation history per session
+- **Story Generation Mode** (legacy): Age-appropriate stories for different educational levels
 - **Fallback Logic**: Automatic fallback to OpenAI API if local model fails
+- **Coding Fine-tune Pipeline**: Scripts to fine-tune on CodeAlpaca-20k and A/B compare vs base model
+- **Multi-language Support**: English, French, German
 - **Image Generation**: DALL-E 3 integration for story illustrations
-- **Web Interface**: Modern web-based UI for easy access
+- **Web Interface**: Modern web-based UI — no physical robot required for demo
 
 ## Quick Start
 
@@ -28,25 +29,29 @@ This will:
 
 ### 2. Configure API Key
 
-Edit `scripts/.env` and add your OpenAI API key:
+Edit `scripts/.env` and add your OpenAI API key (used only as fallback):
 
-```bash
+```
 OPENAI_API_KEY=your-api-key-here
 ```
 
 Get your API key from: https://platform.openai.com/api-keys
 
-### 3. Start EduBot
+### 3. Start EduBot (Q&A mode — default)
 
 ```bash
 bash scripts/start.sh
 ```
 
-### 4. Access Web Interface
+Then open: `http://your-server:8080/qa.html`
 
-Open in your browser:
-- **Main Interface**: `http://your-server:8080/storyGeneration.html`
-- **Lecture Generation**: `http://your-server:8080/lectureGeneration.html`
+### 4. Start in story mode (legacy)
+
+```bash
+bash scripts/start.sh story
+```
+
+Then open: `http://your-server:8080/storyGeneration.html`
 
 ### 5. Stop EduBot
 
@@ -59,21 +64,28 @@ bash scripts/stop.sh
 ```
 EduBot/
 ├── MI2US_Year2s/
-│   └── Interface/          # Main application code
-│       ├── main.py        # Main application entry point
-│       ├── storytelling.py # AI story generation (Phi-3 + fallback)
-│       ├── server.py      # WebSocket server
+│   └── Interface/
+│       ├── qa.py              # Q&A dialogue module (multi-turn)
+│       ├── qa_server.py       # Standalone Q&A WebSocket + HTTP server
+│       ├── qa.html            # Q&A chat web interface
+│       ├── storytelling.py    # LLM core (Phi-3 local + OpenAI fallback)
+│       ├── main.py            # Legacy story-generation entry point
+│       ├── server.py          # WebSocket server (legacy)
 │       ├── imageGeneration.py # DALL-E image generation
-│       └── *.html         # Web interface files
+│       └── *.html             # Web interface files
 ├── scripts/
-│   ├── setup.sh          # Initial setup script
-│   ├── start.sh          # Start EduBot
-│   ├── stop.sh           # Stop EduBot
-│   └── .env              # Configuration (API keys - template included)
-├── logs/                 # Application logs
-├── .cache/               # Model checkpoints (~7.2GB, included)
-│   └── huggingface/      # Phi-3-mini and Phi-Ed models
-└── README.md            # This file
+│   ├── setup.sh               # Initial setup
+│   ├── start.sh               # Start (qa or story mode)
+│   ├── stop.sh                # Stop all processes
+│   ├── finetune_coding.py     # Fine-tune on CodeAlpaca-20k dataset
+│   ├── compare_models.py      # A/B compare base vs coding-tuned model
+│   └── .env                   # API keys (template included)
+├── checkpoints/
+│   └── phi3-coding-adapter/   # Produced by finetune_coding.py
+├── logs/                      # Application logs
+├── .cache/
+│   └── huggingface/           # Model checkpoints (~7.2 GB, included)
+└── README.md
 ```
 
 ## How It Works
