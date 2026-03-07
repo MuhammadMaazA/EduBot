@@ -1,13 +1,101 @@
-<!doctype html><html lang="en"><head>  <meta charset="utf-8" />  <meta name="viewport" content="width=device-width, initial-scale=1" />  <title>EduBot — AI Tutor</title>  <style>    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }    :root {      --bg:        #0f172a;      --surface:   #1e293b;      --surface2:  #334155;      --border:    #475569;      --text:      #f1f5f9;      --text-dim:  #94a3b8;      --accent:    #6366f1;      --accent-hover: #818cf8;      --user-bg:   #4f46e5;      --bot-bg:    #1e293b;      --success:   #22c55e;      --warning:   #f59e0b;      --error:     #ef4444;      --radius:    12px;      --shadow:    0 4px 24px rgba(0,0,0,.25);    }    body {      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;      background: var(--bg);      color: var(--text);      height: 100vh;      display: flex;      flex-direction: column;      overflow: hidden;    }    /* ── Header ─────────────────────────────────────── */    header {      display: flex;      align-items: center;      justify-content: space-between;      padding: 12px 20px;      background: var(--surface);      border-bottom: 1px solid var(--border);      flex-shrink: 0;      z-index: 10;    }    .logo-group { display: flex; align-items: center; gap: 12px; }    .logo {      width: 38px; height: 38px;      background: linear-gradient(135deg, var(--accent), #a78bfa);      border-radius: 10px;      display: flex; align-items: center; justify-content: center;      font-size: 20px;    }    .logo-text h1 { font-size: 16px; font-weight: 700; letter-spacing: -.3px; }    .logo-text span { font-size: 11px; color: var(--text-dim); }    .header-right { display: flex; align-items: center; gap: 14px; }    .status-pill {      display: flex; align-items: center; gap: 6px;      font-size: 12px; color: var(--text-dim);      background: var(--bg); padding: 4px 12px; border-radius: 20px;    }    .status-dot {      width: 8px; height: 8px; border-radius: 50%;      background: var(--error);      transition: background .3s;    }    .status-dot.ok { background: var(--success); }    .icon-btn {      background: none; border: none; color: var(--text-dim);      cursor: pointer; padding: 6px; border-radius: 8px;      transition: background .15s, color .15s;      font-size: 18px; line-height: 1;    }    .icon-btn:hover { background: var(--surface2); color: var(--text); }    /* ── Chat area ──────────────────────────────────── */    #chat {      flex: 1;      overflow-y: auto;      padding: 20px 20px 8px;      display: flex;      flex-direction: column;      gap: 16px;      scroll-behavior: smooth;    }    #chat::-webkit-scrollbar { width: 6px; }    #chat::-webkit-scrollbar-track { background: transparent; }    #chat::-webkit-scrollbar-thumb { background: var(--surface2); border-radius: 3px; }    .msg { display: flex; gap: 10px; max-width: 720px; animation: fadeUp .25s ease; }    .msg.user  { align-self: flex-end; flex-direction: row-reverse; }    .msg.bot   { align-self: flex-start; }    @keyframes fadeUp {      from { opacity: 0; transform: translateY(8px); }      to   { opacity: 1; transform: translateY(0); }    }    .avatar {      width: 32px; height: 32px; border-radius: 8px; flex-shrink: 0;      display: flex; align-items: center; justify-content: center;      font-size: 15px;    }    .bot .avatar  { background: linear-gradient(135deg, var(--accent), #a78bfa); }    .user .avatar { background: var(--surface2); }    .bubble-wrap { display: flex; flex-direction: column; gap: 3px; }    .msg.user .bubble-wrap { align-items: flex-end; }    .sender { font-size: 11px; color: var(--text-dim); font-weight: 600; padding: 0 4px; }    .bubble {      padding: 10px 14px;
-      line-height: 1.55;
-      font-size: 14px;
-      border-radius: var(--radius);
-      word-break: break-word;
-      white-space: pre-wrap;
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>EduBot — AI Tutor (Cloud)</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:        #0f172a;
+      --surface:   #1e293b;
+      --surface2:  #334155;
+      --border:    #475569;
+      --text:      #f1f5f9;
+      --text-dim:  #94a3b8;
+      --accent:    #6366f1;
+      --accent-hover: #818cf8;
+      --user-bg:   #4f46e5;
+      --bot-bg:    #1e293b;
+      --success:   #22c55e;
+      --warning:   #f59e0b;
+      --error:     #ef4444;
+      --radius:    12px;
+      --shadow:    0 4px 24px rgba(0,0,0,.25);
+    }
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* ── Header ─────────────────────────────────────── */
+    header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 20px; background: var(--surface);
+      border-bottom: 1px solid var(--border); flex-shrink: 0; z-index: 10;
+    }
+    .logo-group { display: flex; align-items: center; gap: 12px; }
+    .logo {
+      width: 38px; height: 38px;
+      background: linear-gradient(135deg, var(--accent), #a78bfa);
+      border-radius: 10px; display: flex; align-items: center;
+      justify-content: center; font-size: 20px;
+    }
+    .logo-text h1 { font-size: 16px; font-weight: 700; letter-spacing: -.3px; }
+    .logo-text span { font-size: 11px; color: var(--text-dim); }
+    .header-right { display: flex; align-items: center; gap: 14px; }
+    .status-pill {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 12px; color: var(--text-dim);
+      background: var(--bg); padding: 4px 12px; border-radius: 20px;
+    }
+    .status-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--error); transition: background .3s;
+    }
+    .status-dot.ok { background: var(--success); }
+    .icon-btn {
+      background: none; border: none; color: var(--text-dim);
+      cursor: pointer; padding: 6px; border-radius: 8px;
+      transition: background .15s, color .15s; font-size: 18px; line-height: 1;
+    }
+    .icon-btn:hover { background: var(--surface2); color: var(--text); }
+
+    /* ── Chat area ──────────────────────────────────── */
+    #chat {
+      flex: 1; overflow-y: auto; padding: 20px 20px 8px;
+      display: flex; flex-direction: column; gap: 16px; scroll-behavior: smooth;
+    }
+    #chat::-webkit-scrollbar { width: 6px; }
+    #chat::-webkit-scrollbar-track { background: transparent; }
+    #chat::-webkit-scrollbar-thumb { background: var(--surface2); border-radius: 3px; }
+    .msg { display: flex; gap: 10px; max-width: 720px; animation: fadeUp .25s ease; }
+    .msg.user  { align-self: flex-end; flex-direction: row-reverse; }
+    .msg.bot   { align-self: flex-start; }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .avatar {
+      width: 32px; height: 32px; border-radius: 8px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center; font-size: 15px;
+    }
+    .bot .avatar  { background: linear-gradient(135deg, var(--accent), #a78bfa); }
+    .user .avatar { background: var(--surface2); }
+    .bubble-wrap { display: flex; flex-direction: column; gap: 3px; }
+    .msg.user .bubble-wrap { align-items: flex-end; }
+    .sender { font-size: 11px; color: var(--text-dim); font-weight: 600; padding: 0 4px; }
+    .bubble {
+      padding: 10px 14px; line-height: 1.55; font-size: 14px;
+      border-radius: var(--radius); word-break: break-word; white-space: pre-wrap;
     }
     .bot .bubble  { background: var(--bot-bg); border: 1px solid var(--border); border-top-left-radius: 4px; }
     .user .bubble { background: var(--user-bg); color: #fff; border-top-right-radius: 4px; }
-
     .meta { font-size: 10px; color: var(--text-dim); padding: 0 4px; }
 
     /* Thinking indicator */
@@ -23,20 +111,18 @@
       40%           { opacity: 1;  transform: scale(1); }
     }
 
-    /* Hint stage badges */
+    /* Stage badges */
     .stage-badge {
-      display: inline-block; font-size: 10px; font-weight: 600; text-transform: uppercase;
-      padding: 2px 8px; border-radius: 6px; margin-top: 4px;
+      display: inline-block; font-size: 10px; font-weight: 600;
+      text-transform: uppercase; padding: 2px 8px; border-radius: 6px; margin-top: 4px;
     }
-    .stage-badge.explore   { background: #1e3a5f; color: #60a5fa; }
-    .stage-badge.nudge     { background: #1a3344; color: #67e8f9; }
-    .stage-badge.strong    { background: #3b2f13; color: var(--warning); }
-    .stage-badge.explain   { background: #1a2e1a; color: var(--success); }
+    .stage-badge.explore { background: #1e3a5f; color: #60a5fa; }
+    .stage-badge.nudge   { background: #1a3344; color: #67e8f9; }
+    .stage-badge.strong  { background: #3b2f13; color: var(--warning); }
+    .stage-badge.explain { background: #1a2e1a; color: var(--success); }
 
-    /* Progress bar under header */
-    #progress-bar {
-      height: 3px; background: var(--bg); flex-shrink: 0;
-    }
+    /* Progress bar */
+    #progress-bar { height: 3px; background: var(--bg); flex-shrink: 0; }
     #progress-fill {
       height: 100%; width: 0%; transition: width .4s ease;
       background: linear-gradient(90deg, #6366f1, #a78bfa, #22c55e);
@@ -50,38 +136,29 @@
 
     /* ── Input bar ──────────────────────────────────── */
     #input-bar {
-      padding: 12px 20px 16px;
-      background: var(--surface);
-      border-top: 1px solid var(--border);
-      flex-shrink: 0;
+      padding: 12px 20px 16px; background: var(--surface);
+      border-top: 1px solid var(--border); flex-shrink: 0;
     }
     #input-row {
       display: flex; align-items: flex-end; gap: 10px;
       max-width: 760px; margin: 0 auto;
     }
     #msg-input {
-      flex: 1; resize: none;
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 10px 14px;
+      flex: 1; resize: none; border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 10px 14px;
       font-family: inherit; font-size: 14px;
       background: var(--bg); color: var(--text);
       min-height: 42px; max-height: 140px;
-      transition: border-color .15s;
-      outline: none;
+      transition: border-color .15s; outline: none;
     }
     #msg-input:focus { border-color: var(--accent); }
     #msg-input:disabled { opacity: .4; }
     #msg-input::placeholder { color: var(--text-dim); }
-
     #send-btn {
-      width: 42px; height: 42px;
-      border: none; border-radius: var(--radius);
-      background: var(--accent); color: #fff;
-      cursor: pointer; font-size: 18px;
+      width: 42px; height: 42px; border: none; border-radius: var(--radius);
+      background: var(--accent); color: #fff; cursor: pointer; font-size: 18px;
       display: flex; align-items: center; justify-content: center;
-      transition: background .15s, transform .1s;
-      flex-shrink: 0;
+      transition: background .15s, transform .1s; flex-shrink: 0;
     }
     #send-btn:hover:not(:disabled) { background: var(--accent-hover); transform: scale(1.05); }
     #send-btn:disabled { opacity: .35; cursor: default; }
@@ -92,14 +169,11 @@
       background: rgba(0,0,0,.5); z-index: 100;
     }
     #settings-overlay.open { display: flex; align-items: center; justify-content: center; }
-
     #settings-panel {
       background: var(--surface); border-radius: 16px;
-      padding: 24px; width: 360px; max-width: 90vw;
-      box-shadow: var(--shadow);
+      padding: 24px; width: 360px; max-width: 90vw; box-shadow: var(--shadow);
     }
     #settings-panel h2 { font-size: 16px; margin-bottom: 16px; }
-
     .field { margin-bottom: 14px; }
     .field label { display: block; font-size: 12px; color: var(--text-dim); margin-bottom: 4px; font-weight: 600; }
     .field select, .field input[type=range] {
@@ -109,10 +183,8 @@
     }
     .field .range-row { display: flex; align-items: center; gap: 10px; }
     .field .range-val { font-size: 13px; min-width: 32px; text-align: center; }
-
     .toggle-row {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 6px 0;
+      display: flex; align-items: center; justify-content: space-between; padding: 6px 0;
     }
     .toggle-row label { font-size: 13px; color: var(--text); }
     .toggle {
@@ -122,12 +194,10 @@
     }
     .toggle::after {
       content: ''; width: 16px; height: 16px; border-radius: 50%;
-      background: #fff; position: absolute; top: 3px; left: 3px;
-      transition: transform .2s;
+      background: #fff; position: absolute; top: 3px; left: 3px; transition: transform .2s;
     }
     .toggle.on { background: var(--accent); }
     .toggle.on::after { transform: translateX(18px); }
-
     .settings-actions { display: flex; gap: 10px; margin-top: 18px; }
     .settings-actions button {
       flex: 1; padding: 8px; border-radius: 8px;
@@ -135,6 +205,13 @@
     }
     .btn-close-settings { background: var(--surface2); color: var(--text); }
     .btn-save-settings  { background: var(--accent); color: #fff; }
+
+    /* ── API URL config banner ──────────────────────── */
+    #api-banner {
+      background: var(--warning); color: #000; text-align: center;
+      padding: 8px; font-size: 13px; font-weight: 600; flex-shrink: 0;
+      display: none;
+    }
 
     /* ── Welcome splash ─────────────────────────────── */
     .welcome {
@@ -149,8 +226,7 @@
     .suggestion {
       background: var(--surface2); border: 1px solid var(--border);
       border-radius: 20px; padding: 6px 14px; font-size: 13px;
-      cursor: pointer; transition: background .15s, border-color .15s;
-      color: var(--text);
+      cursor: pointer; transition: background .15s, border-color .15s; color: var(--text);
     }
     .suggestion:hover { background: var(--accent); border-color: var(--accent); color: #fff; }
 
@@ -165,19 +241,22 @@
 </head>
 <body>
 
+  <!-- API URL warning banner (shown if URL is not configured) -->
+  <div id="api-banner">⚠ Modal API URL not configured — edit the API_URL variable in this file</div>
+
   <!-- Header -->
   <header>
     <div class="logo-group">
       <div class="logo">&#x1F916;</div>
       <div class="logo-text">
         <h1>EduBot</h1>
-        <span>Study Mode</span>
+        <span>Study Mode (Cloud)</span>
       </div>
     </div>
     <div class="header-right">
       <div class="status-pill">
         <div class="status-dot" id="status-dot"></div>
-        <span id="status-text">Connecting...</span>
+        <span id="status-text">Checking...</span>
       </div>
       <button class="icon-btn" id="btn-settings" title="Settings">&#9881;</button>
       <button class="icon-btn" id="btn-reset" title="New conversation">&#8635;</button>
@@ -252,19 +331,39 @@
   </div>
 
   <script>
-    // ── Config ──────────────────────────────────────────
-    const WS_URL = 'ws://' + window.location.host;
+    // ════════════════════════════════════════════════════════════════
+    // ██  CHANGE THIS to your Modal URL from `modal deploy` output ██
+    // ════════════════════════════════════════════════════════════════
+    const API_URL = 'https://muhammadmaaza--edubot-chat.modal.run';
+    const HEALTH_URL = API_URL.replace('edubot-chat', 'edubot-health');
+    const RESET_URL  = API_URL.replace('edubot-chat', 'edubot-reset');
+    // ════════════════════════════════════════════════════════════════
+
+    // Unique session ID per browser tab (so each student has their own conversation)
+    const SESSION_ID = 'student-' + Math.random().toString(36).slice(2, 10);
 
     const chat       = document.getElementById('chat');
     const input      = document.getElementById('msg-input');
     const sendBtn    = document.getElementById('send-btn');
     const dot        = document.getElementById('status-dot');
     const stxt       = document.getElementById('status-text');
-    const welcome    = document.getElementById('welcome');
     const overlay    = document.getElementById('settings-overlay');
+    const banner     = document.getElementById('api-banner');
 
-    let ws       = null;
     let thinking = null;
+
+    // Settings (local state — sent with each request)
+    let settings = {
+      temperature: 0.5,
+      max_tokens:  120,
+      hint_mode:   true,
+      hint_level:  2,
+    };
+
+    // ── Check API URL ───────────────────────────────────
+    if (API_URL.includes('YOUR-WORKSPACE')) {
+      banner.style.display = 'block';
+    }
 
     // ── Status ──────────────────────────────────────────
     function setStatus(connected) {
@@ -274,6 +373,31 @@
       sendBtn.disabled = !connected;
       if (connected) input.focus();
     }
+
+    // Health check — ping the Modal endpoint
+    async function checkHealth() {
+      if (API_URL.includes('YOUR-WORKSPACE')) {
+        setStatus(false);
+        stxt.textContent = 'URL not set';
+        return;
+      }
+      try {
+        const resp = await fetch(HEALTH_URL, { signal: AbortSignal.timeout(10000) });
+        if (resp.ok) {
+          setStatus(true);
+        } else {
+          setStatus(false);
+          stxt.textContent = 'Server error';
+        }
+      } catch {
+        setStatus(false);
+        stxt.textContent = 'Unreachable';
+      }
+    }
+
+    // Check on load, then every 30s
+    checkHealth();
+    setInterval(checkHealth, 30000);
 
     // ── Time helper ─────────────────────────────────────
     function timeStr() {
@@ -318,6 +442,13 @@
         meta.appendChild(badge);
       }
 
+      if (who === 'bot' && extra && extra.latency_s) {
+        const lat = document.createElement('span');
+        lat.style.cssText = 'margin-left:8px;color:var(--text-dim);font-size:10px';
+        lat.textContent = extra.latency_s + 's';
+        meta.appendChild(lat);
+      }
+
       bw.appendChild(sender);
       bw.appendChild(bubble);
       bw.appendChild(meta);
@@ -331,27 +462,18 @@
     function showThinking() {
       removeThinking();
       const wrap = document.createElement('div');
-      wrap.className = 'msg bot';
-      wrap.id = 'thinking-msg';
-
+      wrap.className = 'msg bot'; wrap.id = 'thinking-msg';
       const avatar = document.createElement('div');
-      avatar.className = 'avatar';
-      avatar.textContent = '\u{1F916}';
-
+      avatar.className = 'avatar'; avatar.textContent = '\u{1F916}';
       const dots = document.createElement('div');
       dots.className = 'thinking-dots';
       dots.innerHTML = '<span></span><span></span><span></span>';
-
       const bw = document.createElement('div');
       bw.className = 'bubble-wrap';
       const sender = document.createElement('div');
-      sender.className = 'sender';
-      sender.textContent = 'EduBot';
-      bw.appendChild(sender);
-      bw.appendChild(dots);
-
-      wrap.appendChild(avatar);
-      wrap.appendChild(bw);
+      sender.className = 'sender'; sender.textContent = 'EduBot';
+      bw.appendChild(sender); bw.appendChild(dots);
+      wrap.appendChild(avatar); wrap.appendChild(bw);
       chat.appendChild(wrap);
       chat.scrollTop = chat.scrollHeight;
       thinking = wrap;
@@ -364,9 +486,9 @@
     }
 
     // ── Stage progress ──────────────────────────────────
-    const stageNames = { explore: 'Exploring', nudge: 'Hinting', strong: 'Almost there!', explain: 'Explained' };
+    const stageNames    = { explore: 'Exploring', nudge: 'Hinting', strong: 'Almost there!', explain: 'Explained' };
     const stageProgress = { explore: 25, nudge: 50, strong: 75, explain: 100 };
-    const stageDescs = {
+    const stageDescs    = {
       explore: "I'll guide you step by step",
       nudge: "Here are some concrete hints",
       strong: "You're so close!",
@@ -382,55 +504,59 @@
       if (label && name) label.innerHTML = 'Stage: <span>' + (stageNames[stage]||stage) + '</span> &mdash; ' + desc;
     }
 
-    // ── WebSocket ───────────────────────────────────────
-    function connect() {
-      ws = new WebSocket(WS_URL);
-      ws.onopen = () => setStatus(true);
-      ws.onclose = () => { setStatus(false); setTimeout(connect, 2000); };
-      ws.onerror = () => setStatus(false);
-      ws.onmessage = (ev) => {
-        try {
-          const msg = JSON.parse(ev.data);
-          switch (msg.type) {
-            case 'answer':
-              addMsg('bot', msg.text, { stage: msg.stage });
-              if (msg.stage) updateStage(msg.stage);
-              input.disabled = false;
-              sendBtn.disabled = false;
-              input.focus();
-              break;
-            case 'thinking':
-              showThinking();
-              break;
-            case 'error':
-              removeThinking();
-              addMsg('bot', msg.text || 'Something went wrong.');
-              input.disabled = false;
-              sendBtn.disabled = false;
-              break;
-            case 'reset_ok':
-              break;
-            case 'settings_ok':
-              break;
-          }
-        } catch {
-          addMsg('bot', ev.data);
-        }
-      };
-    }
-
-    // ── Send ────────────────────────────────────────────
-    function send(text) {
+    // ── Send (fetch POST to Modal) ──────────────────────
+    async function send(text) {
       text = (text || input.value).trim();
-      if (!text || !ws || ws.readyState !== 1) return;
+      if (!text) return;
+
       const w = document.getElementById('welcome');
       if (w) w.remove();
+
       addMsg('user', text);
-      ws.send(JSON.stringify({ type: 'question', text }));
       input.value = '';
       input.style.height = 'auto';
       input.disabled = true;
       sendBtn.disabled = true;
+
+      showThinking();
+
+      try {
+        const resp = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            question:    text,
+            session_id:  SESSION_ID,
+            temperature: settings.temperature,
+            max_tokens:  settings.max_tokens,
+            hint_mode:   settings.hint_mode,
+            hint_level:  settings.hint_level,
+          }),
+        });
+
+        if (!resp.ok) {
+          throw new Error('Server returned ' + resp.status);
+        }
+
+        const data = await resp.json();
+
+        if (data.error) {
+          addMsg('bot', 'Error: ' + data.error);
+        } else {
+          addMsg('bot', data.answer, {
+            stage: data.stage,
+            latency_s: data.latency_s,
+          });
+          if (data.stage) updateStage(data.stage);
+        }
+      } catch (err) {
+        removeThinking();
+        addMsg('bot', 'Connection error: ' + err.message + '. Please try again.');
+      } finally {
+        input.disabled = false;
+        sendBtn.disabled = false;
+        input.focus();
+      }
     }
 
     sendBtn.onclick = () => send();
@@ -450,9 +576,17 @@
     });
 
     // ── Reset ───────────────────────────────────────────
-    document.getElementById('btn-reset').addEventListener('click', () => {
-      if (!ws || ws.readyState !== 1) return;
-      ws.send(JSON.stringify({ type: 'reset' }));
+    document.getElementById('btn-reset').addEventListener('click', async () => {
+      // Reset server-side session
+      try {
+        await fetch(RESET_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ session_id: SESSION_ID }),
+        });
+      } catch { /* ignore */ }
+
+      // Reset UI
       chat.innerHTML = '';
       const w = document.createElement('div');
       w.className = 'welcome'; w.id = 'welcome';
@@ -469,6 +603,9 @@
       w.querySelectorAll('.suggestion').forEach(el => {
         el.addEventListener('click', () => send(el.dataset.q));
       });
+
+      // Reset stage
+      updateStage('explore');
     });
 
     // ── Settings ────────────────────────────────────────
@@ -487,21 +624,15 @@
     overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.classList.remove('open'); });
 
     document.getElementById('btn-save-settings').onclick = () => {
-      if (!ws || ws.readyState !== 1) return;
-      ws.send(JSON.stringify({
-        type:        'settings',
-        hint_level:  parseInt(document.getElementById('set-hint-level').value),
-        temperature: parseFloat(tempSlider.value),
-        max_tokens:  parseInt(tokensSlider.value),
-        hint_mode:   hintToggle.classList.contains('on'),
-      }));
+      settings.hint_level  = parseInt(document.getElementById('set-hint-level').value);
+      settings.temperature = parseFloat(tempSlider.value);
+      settings.max_tokens  = parseInt(tokensSlider.value);
+      settings.hint_mode   = hintToggle.classList.contains('on');
       overlay.classList.remove('open');
     };
 
     // ── Boot ────────────────────────────────────────────
     setStatus(false);
-    connect();
   </script>
 </body>
 </html>
-

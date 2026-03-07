@@ -84,7 +84,7 @@ if [ "$MODE" = "story" ]; then
     echo "=========================================="
 else
     # ---- Q&A dialogue mode (default) ----
-    # qa_server.py starts the HTTP server internally on port 8080
+    # qa_server.py serves HTTP + WebSocket on a single port (8080)
     nohup venv39/bin/python qa_server.py > "$EDUBOT_DIR/logs/qa_server.log" 2>&1 &
     BACKEND_PID=$!
     echo "$BACKEND_PID" > "$EDUBOT_DIR/logs/edubot.pid"
@@ -95,7 +95,6 @@ else
     echo "[SUCCESS] EduBot (Q&A mode) is running!"
     echo "=========================================="
     echo "Open: http://$HOST:8080/qa.html"
-    echo "WebSocket: ws://$HOST:10000"
     echo "Logs: $EDUBOT_DIR/logs/qa_server.log"
     echo "Stop: bash scripts/stop.sh"
     echo "=========================================="

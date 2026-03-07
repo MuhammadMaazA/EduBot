@@ -1,0 +1,9 @@
+[muhamaaz@blaze social-robots]$ ps ux | grep qa_server.py | grep -v grep
+muhamaaz 20823  6.7  0.4 3983640 325960 ?      S    18:23   0:05 venv39/bin/python qa_server.py
+[muhamaaz@blaze social-robots]$ cd /cs/student/projects1/2023/muhamaaz/social-robots/EduBot
+[muhamaaz@blaze EduBot]$ ls logs
+compare.log  edubot.log  edubot.pid  finetune.log  finetune.pid  http_server.log  qa_server.log
+[muhamaaz@blaze EduBot]$ tail -F logs/qa_server.log
+
+
+

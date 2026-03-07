@@ -1,31 +1,10 @@
 """
-Q&A WebSocket server for EduBot.
+Q&A WebSocket server for EduBot (simple backend).
 
-Inference backends
-──────────────────
-  USE_VLLM=1   vLLM AsyncLLMEngine — true continuous batching.
-               Requires sm_7.0+ GPU (e.g. RTX 3090).
-               All 4 client sessions are served in parallel with no lock.
-
-  USE_VLLM=0   4-GPU worker pool (default, works on current TITAN X setup).
-  (default)    One 4-bit model per GPU; each GPU has its own asyncio Queue.
-               Requests are routed to the least-busy GPU, so up to 4 clients
-               run inference simultaneously.
-
-Environment variables
-──────────────────────
-  USE_VLLM=1        Switch to vLLM backend
-  QA_PORT=10000     WebSocket port (default 10000)
-  HTTP_PORT=8080    Static file server port (default 8080)
-  GPU_IDS=0,1,2,3   Which GPUs to use (default: all available)
-
-Usage
-──────
-  # 4-GPU pool (current hardware)
-  python qa_server.py
-
-  # vLLM (RTX 3090 or similar)
-  USE_VLLM=1 python qa_server.py
+- One global Phi-3-mini model loaded in qa.py on cuda:0 (if available).
+- All WebSocket clients share that single model instance.
+- Inference is run in a background thread with a global lock so the
+  event loop stays responsive, but only one generation runs at a time.
 """
 from __future__ import annotations
 
@@ -33,8 +12,6 @@ import asyncio
 import json
 import os
 import sys
-import threading
-from asyncio import Queue
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
@@ -43,67 +20,34 @@ if str(_HERE) not in sys.path:
     sys.path.insert(0, str(_HERE))
 
 import websockets
-import torch
 from qa import (
     QASession, SYSTEM_PROMPT,
-    _qa_generate, _vllm_generate,
-    _clean, _enforce_hint, _rewrite, _ladder_instruction,
-    init_gpu_pool, _USE_VLLM,
+    _qa_generate, _clean, _enforce_hint, _rewrite, _ladder_instruction,
+    _load_model, _ladder_stage, _detect_frustration,
+    STAGE_EXPLORE, STAGE_NUDGE, STAGE_STRONG, STAGE_EXPLAIN,
 )
 
 # ── Config ────────────────────────────────────────────────────────────────────
-_QA_PORT   = int(os.getenv("QA_PORT",   "10000"))
-_HTTP_PORT = int(os.getenv("HTTP_PORT", "8080"))
-_NUM_GPUS  = torch.cuda.device_count()
+_PORT = int(os.getenv("PORT", "8080"))
 
-_gpu_ids_env = os.getenv("GPU_IDS", "")
-GPU_IDS: list[int] = (
-    [int(x) for x in _gpu_ids_env.split(",") if x.strip().isdigit()]
-    if _gpu_ids_env else list(range(max(_NUM_GPUS, 1)))
-)
+# ── MIME types for static file serving ────────────────────────────────────────
+_MIME = {
+    '.html': 'text/html; charset=utf-8',
+    '.css':  'text/css; charset=utf-8',
+    '.js':   'application/javascript; charset=utf-8',
+    '.json': 'application/json',
+    '.png':  'image/png',
+    '.jpg':  'image/jpeg',
+    '.jpeg': 'image/jpeg',
+    '.ico':  'image/x-icon',
+    '.svg':  'image/svg+xml',
+    '.mp4':  'video/mp4',
+    '.txt':  'text/plain; charset=utf-8',
+}
 
-# ── GPU worker pool ───────────────────────────────────────────────────────────
-# One asyncio Queue per GPU. Each queue is drained by a dedicated worker
-# coroutine that runs inference in a ThreadPoolExecutor.  Requests go to the
-# GPU whose queue is shortest (least-busy routing).
-
-_gpu_queues: dict[int, Queue] = {}       # gpu_id -> asyncio.Queue
-_gpu_executor = ThreadPoolExecutor(max_workers=len(GPU_IDS) or 1)
-
-
-async def _gpu_worker(gpu_id: int):
-    """Drain the queue for gpu_id, running inference in a thread."""
-    q = _gpu_queues[gpu_id]
-    while True:
-        future, messages, temperature, max_tokens = await q.get()
-        try:
-            loop = asyncio.get_event_loop()
-            result = await loop.run_in_executor(
-                _gpu_executor,
-                lambda: _qa_generate(messages, temperature, max_tokens, gpu_id),
-            )
-            if not future.done():
-                future.set_result(result)
-        except Exception as exc:
-            if not future.done():
-                future.set_exception(exc)
-        finally:
-            q.task_done()
-
-
-def _least_busy_gpu() -> int:
-    """Return the GPU id whose queue is currently shortest."""
-    return min(_gpu_queues, key=lambda g: _gpu_queues[g].qsize())
-
-
-async def _submit_inference(messages: list, temperature: float, max_tokens: int) -> str:
-    """Route one inference request to the best available GPU."""
-    loop   = asyncio.get_event_loop()
-    future = loop.create_future()
-    gpu_id = _least_busy_gpu()
-    await _gpu_queues[gpu_id].put((future, messages, temperature, max_tokens))
-    return await future
-
+# Single-thread executor + global lock for GPU use
+_inference_executor = ThreadPoolExecutor(max_workers=1)
+_inference_lock     = asyncio.Lock()
 
 # ── Per-client state ──────────────────────────────────────────────────────────
 _sessions: dict[int, QASession] = {}
@@ -121,9 +65,9 @@ DEFAULT_SETTINGS = {
 }
 
 HINT_PROMPTS = {
-    1: "Give a very gentle nudge — just one small hint. Keep it to one sentence.",
+    1: "Give a very gentle nudge — just one small hint, then ask a question. Keep it to one or two sentences.",
     2: "Guide with a hint and one follow-up question. Two sentences maximum.",
-    3: "Be more direct but still do not give the full answer. Ask a pointed question.",
+    3: "Be more direct: give a strong specific hint, but still end with a question. Don't give the full answer yet.",
 }
 
 
@@ -142,15 +86,11 @@ def _build_system_prompt(settings: dict) -> str:
 async def handler(websocket, path):
     client_id = id(websocket)
     settings  = dict(DEFAULT_SETTINGS)
-
-    # Assign this client to the least-busy GPU (only meaningful in pool mode)
-    gpu_id = _least_busy_gpu() if not _USE_VLLM else 0
-    session = QASession(system_prompt=_build_system_prompt(settings), gpu_id=gpu_id)
+    session   = QASession(system_prompt=_build_system_prompt(settings))
 
     _sessions[client_id] = session
     _settings[client_id] = settings
-    print(f"[INFO] Client connected: {websocket.remote_address}  "
-          f"(gpu:{gpu_id}, backend:{'vllm' if _USE_VLLM else 'pool'})")
+    print(f"[INFO] Client connected: {websocket.remote_address}")
 
     try:
         async for raw in websocket:
@@ -170,24 +110,32 @@ async def handler(websocket, path):
                 s  = _settings[client_id]
                 tc = session.turn_count + 1   # what the turn count will be
 
-                print(f"[Q] client={client_id} gpu={gpu_id} turn={tc}  {question[:60]}")
+                # Detect frustration for bump preview
+                frustrated = _detect_frustration(question)
+                preview_bumps = session._frustration_bumps + (2 if frustrated else 0)
+                effective_tc = tc + preview_bumps
+                stage = _ladder_stage(effective_tc)
 
-                # Tell the UI we are working (queued or thinking)
+                print(f"[Q] client={client_id} turn={tc} eff={effective_tc} stage={stage}  {question[:60]}")
+
+                # Tell the UI we are working
                 await websocket.send(json.dumps({"type": "thinking", "turn": tc}))
 
                 # Build messages
-                ladder      = _ladder_instruction(tc)
-                user_content = (f"{ladder}\n{_rewrite(question, tc)}").strip() if ladder else _rewrite(question, tc)
+                ladder      = _ladder_instruction(effective_tc)
+                user_content = (f"{ladder}\n{_rewrite(question, effective_tc)}").strip() if ladder else _rewrite(question, effective_tc)
                 messages = [{"role": "system", "content": _build_system_prompt(s)}]
                 messages.extend(session.get_history())
                 messages.append({"role": "user", "content": user_content})
 
-                # Run inference
+                # Run inference in background thread, one at a time
                 try:
-                    if _USE_VLLM:
-                        raw_answer = await _vllm_generate(messages, s["temperature"], s["max_tokens"])
-                    else:
-                        raw_answer = await _submit_inference(messages, s["temperature"], s["max_tokens"])
+                    loop = asyncio.get_event_loop()
+                    async with _inference_lock:
+                        raw_answer = await loop.run_in_executor(
+                            _inference_executor,
+                            lambda: _qa_generate(messages, s["temperature"], s["max_tokens"]),
+                        )
                 except Exception as exc:
                     print(f"[ERROR] Inference failed: {exc}")
                     await websocket.send(json.dumps({
@@ -196,24 +144,24 @@ async def handler(websocket, path):
                     }))
                     continue
 
-                answer = _enforce_hint(_clean(raw_answer), question, turn_count=tc)
+                answer = _enforce_hint(_clean(raw_answer), question, turn_count=effective_tc)
 
-                # Update session state
+                # Update session state (session.chat does this internally,
+                # but we're driving it manually here for the executor pattern)
                 session.history.append({"role": "user",      "content": question})
                 session.history.append({"role": "assistant",  "content": answer})
                 session.turn_count = tc
+                if frustrated:
+                    session._frustration_bumps += 2
 
-                print(f"[A] turn={tc}  {answer[:80]}...")
+                print(f"[A] turn={tc} stage={stage}  {answer[:80]}...")
                 await websocket.send(json.dumps({
                     "type":       "answer",
                     "text":       answer,
                     "model":      s["model"],
                     "turn":       tc,
-                    "hint_stage": (
-                        "reveal"   if tc >= 5 else
-                        "escalate" if tc >= 3 else
-                        "socratic"
-                    ),
+                    "effective_turn": effective_tc,
+                    "stage":      stage,
                 }))
 
             # ── settings ──────────────────────────────────────────────────
@@ -251,38 +199,50 @@ async def handler(websocket, path):
         print(f"[INFO] Client disconnected: {websocket.remote_address}")
 
 
+# ── Static file serving via process_request ───────────────────────────────────
+async def _serve_static(path, request_headers):
+    """Serve static files for plain HTTP; return None for WebSocket upgrades."""
+    if request_headers.get("Upgrade", "").lower() == "websocket":
+        return None  # hand off to WebSocket handler
+
+    if path == "/":
+        path = "/qa.html"
+
+    # Security: prevent path traversal
+    safe = path.lstrip("/").replace("..", "")
+    file_path = (_HERE / safe).resolve()
+    if not str(file_path).startswith(str(_HERE)):
+        return (403, [("Content-Type", "text/plain")], b"Forbidden")
+
+    if not file_path.is_file():
+        return (404, [("Content-Type", "text/plain")], b"404 Not Found")
+
+    ext = file_path.suffix.lower()
+    ctype = _MIME.get(ext, "application/octet-stream")
+    body = file_path.read_bytes()
+    return (200, [("Content-Type", ctype), ("Cache-Control", "no-cache")], body)
+
+
 # ── Startup ───────────────────────────────────────────────────────────────────
-async def _start_pool_workers():
-    """Create one asyncio Queue + worker coroutine per GPU."""
-    for gpu_id in GPU_IDS:
-        _gpu_queues[gpu_id] = Queue()
-        asyncio.ensure_future(_gpu_worker(gpu_id))
-    print(f"[INFO] GPU worker queues started for GPUs: {GPU_IDS}")
-
-
 def run():
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
 
-    if _USE_VLLM:
-        from qa import _init_vllm
-        print("[INFO] Initialising vLLM engine ...")
-        _init_vllm()
-        # vLLM is async internally — no pool workers needed
-        # We still create a single dummy queue so _least_busy_gpu() works
-        _gpu_queues[0] = Queue()
-    else:
-        # Pre-load all GPU models, then start worker coroutines
-        print(f"[INFO] Loading model on {len(GPU_IDS)} GPU(s): {GPU_IDS} ...")
-        load_thread = threading.Thread(target=init_gpu_pool, args=(GPU_IDS,), daemon=True)
-        load_thread.start()
-        load_thread.join()
-        loop.run_until_complete(_start_pool_workers())
+    # Eagerly load the model once at startup so the first
+    # question from any client is fast.
+    try:
+        _load_model()
+    except Exception as exc:
+        print(f"[ERROR] Failed to load Q&A model: {exc}")
+        raise
 
-    server = websockets.serve(handler, "0.0.0.0", _QA_PORT)
+    server = websockets.serve(
+        handler, "0.0.0.0", _PORT,
+        process_request=_serve_static,
+    )
     loop.run_until_complete(server)
-    print(f"[INFO] Q&A WebSocket server on port {_QA_PORT}  "
-          f"(backend: {'vllm' if _USE_VLLM else f'{len(GPU_IDS)}-gpu-pool'})")
+    print(f"[INFO] Combined HTTP + WebSocket server on port {_PORT}")
+    print(f"[INFO] Open: http://localhost:{_PORT}/qa.html")
     loop.run_forever()
 
 
@@ -292,14 +252,5 @@ if __name__ == "__main__":
     cache.mkdir(parents=True, exist_ok=True)
     os.environ.setdefault("HF_HOME",            str(cache))
     os.environ.setdefault("TRANSFORMERS_CACHE",  str(cache))
-
-    # Static file HTTP server
-    import subprocess
-    subprocess.Popen(
-        [sys.executable, "-m", "http.server", str(_HTTP_PORT)],
-        cwd=_HERE,
-    )
-    print(f"[INFO] HTTP server on port {_HTTP_PORT}  "
-          f"— open: http://localhost:{_HTTP_PORT}/qa.html")
 
     run()

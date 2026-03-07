@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>EduBot – Simple Chat</title>
+  <style>
+    body { margin: 0; font-family: system-ui, sans-serif; background:#111827; color:#e5e7eb; }
+    #bar { padding:10px 16px; border-bottom:1px solid #1f2937; display:flex; align-items:center; justify-content:space-between; background:#020617;}
+    #title { font-weight:600; }
+    #status-dot { width:10px; height:10px; border-radius:999px; margin-right:6px; background:#b91c1c;}
+    #status-text { font-size:12px; color:#9ca3af; }
+    #chat { height: calc(100vh - 96px); padding:16px; overflow-y:auto; }
+    .msg { margin-bottom:10px; max-width:640px; }
+    .user  { margin-left:auto; text-align:right; }
+    .robot { margin-right:auto; text-align:left; }
+    .bubble { display:inline-block; padding:8px 12px; border-radius:12px; line-height:1.4; }
+    .user .bubble  { background:#4b5563; }
+    .robot .bubble { background:#1f2937; }
+    #input-row { display:flex; padding:10px 16px; border-top:1px solid #1f2937; background:#020617;}
+    #msg-input { flex:1; resize:none; border:none; border-radius:8px; padding:8px; font-family:inherit; font-size:14px; background:#111827; color:#e5e7eb; }
+    #msg-input:disabled { opacity:.5; }
+    #send-btn { margin-left:8px; padding:8px 16px; border:none; border-radius:8px; background:#2563eb; color:#fff; font-size:14px; cursor:pointer;}
+    #send-btn:disabled { opacity:.4; cursor:default; }
+  </style>
+</head>
+<body>
+  <div id="bar">
+    <div id="title">EduBot – Terminal Chat Frontend</div>
+    <div style="display:flex;align-items:center;">
+      <div id="status-dot"></div>
+      <div id="status-text">Disconnected</div>
+    </div>
+  </div>
+  <div id="chat">
+    <div class="msg robot"><div class="bubble">Ask me anything — I will guide you step by step.</div></div>
+  </div>
+  <div id="input-row">
+    <textarea id="msg-input" rows="1" placeholder="Type your question…"></textarea>
+    <button id="send-btn">Send</button>
+  </div>
+
+  <script>
+    const WS_URL = 'ws://' + window.location.hostname + ':10000';
+
+    const chat    = document.getElementById('chat');
+    const input   = document.getElementById('msg-input');
+    const sendBtn = document.getElementById('send-btn');
+    const dot     = document.getElementById('status-dot');
+    const stxt    = document.getElementById('status-text');
+
+    let ws = null;
+
+    function setStatus(connected) {
+      if (connected) {
+        dot.style.background = '#22c55e';
+        stxt.textContent = 'Connected';
+        input.disabled = false;
+        sendBtn.disabled = false;
+      } else {
+        dot.style.background = '#b91c1c';
+        stxt.textContent = 'Disconnected';
+        input.disabled = true;
+        sendBtn.disabled = true;
+      }
+    }
+
+    function addMsg(who, text) {
+      const wrap = document.createElement('div');
+      wrap.className = 'msg ' + who;
+      const bubble = document.createElement('div');
+      bubble.className = 'bubble';
+      bubble.textContent = text;
+      wrap.appendChild(bubble);
+      chat.appendChild(wrap);
+      chat.scrollTop = chat.scrollHeight;
+    }
+
+    function connect() {
+      ws = new WebSocket(WS_URL);
+      ws.onopen = () => setStatus(true);
+      ws.onclose = () => {
+        setStatus(false);
+        setTimeout(connect, 1500);
+      };
+      ws.onerror = () => setStatus(false);
+      ws.onmessage = (ev) => {
+        try {
+          const msg = JSON.parse(ev.data);
+          if (msg.type === 'answer') addMsg('robot', msg.text);
+        } catch {
+          addMsg('robot', ev.data);
+        }
+      };
+    }
+
+    function send() {
+      const text = input.value.trim();
+      if (!text || !ws || ws.readyState !== 1) return;
+      addMsg('user', text);
+      ws.send(JSON.stringify({ type: 'question', text }));
+      input.value = '';
+    }
+
+    sendBtn.onclick = send;
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        send();
+      }
+    });
+
+    setStatus(false);
+    connect();
+  </script>
+</body>
+</html>
+
