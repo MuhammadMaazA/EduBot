@@ -5,7 +5,7 @@ Sends the same Socratic Q&A questions to both and prints side-by-side with
 timing so you can judge quality + latency.
 
 Usage:
-    source MI2US_Year2s/Interface/venv39/bin/activate
+    source app/venv39/bin/activate
     python scripts/compare_local_vs_modal.py
 
     # Test only Modal (no GPU needed):

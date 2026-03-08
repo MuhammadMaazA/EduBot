@@ -5,14 +5,13 @@ Tests the QASession multi-turn conversation without a browser or WebSocket.
 Run from the Interface directory:
 
     source venv39/bin/activate
-    cd MI2US_Year2s/Interface
+    cd app
     python ../../scripts/test_qa.py
 """
 import sys, os
 from pathlib import Path
 
-# Point at Interface directory
-HERE = Path(__file__).resolve().parent.parent / "MI2US_Year2s" / "Interface"
+HERE = Path(__file__).resolve().parent.parent / "app"
 sys.path.insert(0, str(HERE))
 
 # Cache dirs

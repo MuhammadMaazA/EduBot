@@ -12,12 +12,12 @@ Commands:
 Usage (in bash):
     cd EduBot
     export HF_HOME="$PWD/.cache/huggingface"
-    MI2US_Year2s/Interface/venv39/bin/python scripts/chat.py
+    app/venv39/bin/python scripts/chat.py
 """
 import sys, os
 from pathlib import Path
 
-HERE   = Path(__file__).resolve().parent.parent / "MI2US_Year2s" / "Interface"
+HERE   = Path(__file__).resolve().parent.parent / "app"
 EDUBOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(HERE))
 

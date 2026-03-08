@@ -11,7 +11,7 @@ Adapter saved to: EduBot/checkpoints/phi3-coding-adapter/
 
 Usage (from EduBot root, in bash):
     export HF_HOME="$PWD/.cache/huggingface"
-    nohup MI2US_Year2s/Interface/venv39/bin/python scripts/finetune_coding.py \
+    nohup app/venv39/bin/python scripts/finetune_coding.py \
         > logs/finetune.log 2>&1 &
     echo $! > logs/finetune.pid
     tail -f logs/finetune.log   # watch progress

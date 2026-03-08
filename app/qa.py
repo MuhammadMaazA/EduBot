@@ -1,38 +1,23 @@
-"""
-Q&A Dialogue module for EduBot — hint-based Socratic tutoring.
-
-Simple backend:
-- One Phi-3-mini model loaded once on cuda:0 (if available).
-- Optional coding adapter (phi3-coding-adapter) applied on top.
-- No vLLM, no multi-GPU pool — just a single generate() call per request.
-
-"""Hint ladder (enforced per QASession) — study-mode Socratic tutoring:
-  turns 1-3  →  explore: ask what the student knows, use analogies, one question per reply
-  turns 4-6  →  nudge: give concrete hints, break the problem into smaller pieces
-  turns 7-9  →  strong hint: nearly reveal the answer, fill in missing pieces
-  turn 10+   →  explain: give a clear summary (only after genuine effort)
-
-  Frustration / "I don't know" signals can bump the stage forward.
-"""
+# Socratic Q&A backend for EduBot.
+# Loads Phi-3-mini once, applies the coding LoRA adapter if present.
+# Hint ladder: explore (1-3) → nudge (4-6) → strong (7-9) → explain (10+)
+# Frustration signals bump the stage forward early.
 import os
 import re
 from pathlib import Path
 
 import torch
 
-# ── Paths ────────────────────────────────────────────────────────────────────
 BASE_MODEL     = "microsoft/Phi-3-mini-128k-instruct"
-_EDUBOT_ROOT   = Path(__file__).resolve().parents[2]   # EduBot/
+_EDUBOT_ROOT   = Path(__file__).resolve().parents[1]
 CODING_ADAPTER = _EDUBOT_ROOT / "checkpoints" / "phi3-coding-adapter"
 CACHE_DIR      = _EDUBOT_ROOT / ".cache" / "huggingface"
 
-# Single global tokenizer/model lazily loaded on first use
 _tok = None
 _model = None
 
 
 def _load_model():
-    """Load tokenizer + model once, on cuda:0 if available, else CPU."""
     global _tok, _model
     if _model is not None:
         return _tok, _model
@@ -72,7 +57,6 @@ def _load_model():
 
 
 def _qa_generate(messages: list, temperature: float = 0.5, max_new_tokens: int = 120) -> str:
-    """Synchronous inference using the single global model."""
     tok, model = _load_model()
     prompt  = tok.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
     inputs  = tok(prompt, return_tensors="pt").to(model.device)
@@ -88,11 +72,7 @@ def _qa_generate(messages: list, temperature: float = 0.5, max_new_tokens: int =
     return tok.decode(new_tokens, skip_special_tokens=True).strip()
 
 
-# ── Hint ladder ───────────────────────────────────────────────────────────────
-# Injected as an instruction prefix into the user message so the model gets an
-# explicit signal rather than relying on it counting turns itself.
-#
-# Four stages — the session can also jump stages via frustration detection.
+# Hint ladder — injected as a prefix into each user message
 
 STAGE_EXPLORE  = "explore"    # turns 1-3
 STAGE_NUDGE    = "nudge"      # turns 4-6
@@ -100,7 +80,7 @@ STAGE_STRONG   = "strong"     # turns 7-9
 STAGE_EXPLAIN  = "explain"    # turns 10+
 
 _LADDER = {
-    (1,  3):  (STAGE_EXPLORE, ""),           # pure Socratic — no extra instruction
+    (1,  3):  (STAGE_EXPLORE, ""),
     (4,  6):  (STAGE_NUDGE, (
         "[NUDGE: The student has been engaging for a few turns. "
         "Break the concept into a smaller piece they might already know. "
@@ -135,7 +115,7 @@ def _ladder_instruction(turn_count: int) -> str:
     return ""
 
 
-# ── Frustration / "I don't know" detection ────────────────────────────────────
+# Frustration detection
 _IDK_PATTERNS = re.compile(
     r"(i\s*don.?t\s*know|no\s*idea|no\s*clue|i.?m\s*stuck|i\s*give\s*up|"
     r"just\s*tell\s*me|can\s*you\s*just|please\s*just|i\s*can.?t|help\s*me|"
@@ -144,24 +124,16 @@ _IDK_PATTERNS = re.compile(
 )
 
 def _detect_frustration(msg: str) -> bool:
-    """Return True if the student sounds stuck or frustrated."""
     return bool(_IDK_PATTERNS.search(msg))
 
 
-# ── Text helpers ──────────────────────────────────────────────────────────────
+# Text helpers
 _EXPLAIN_RE = re.compile(
     r"^(tell me (about|what|how)|explain|what (is|are|does|do)|describe|define|how does|how do)\b",
     re.IGNORECASE,
 )
 
 def _rewrite(student_msg: str, turn_count: int = 1) -> str:
-    """
-    Pre-process the student message:
-      - If the student sounds stuck, note it so the model gives a gentler nudge.
-      - If it is an "explain X" request and we're still exploring,
-        rewrite it so the model gives a hint instead of a definition.
-      - In later stages, let the ladder instruction handle it.
-    """
     msg = student_msg.strip()
     stage = _ladder_stage(turn_count)
 
@@ -197,7 +169,6 @@ def _rewrite(student_msg: str, turn_count: int = 1) -> str:
 
 
 def _clean(text: str) -> str:
-    """Strip leaked role prefixes and hallucinated continuations."""
     text = re.sub(r"^\s*(Robot|Tutor|Assistant|AI)\s*:\s*", "", text, flags=re.IGNORECASE)
     for marker in ("Student:", "You:", "User:", "Human:"):
         idx = text.find(marker)
@@ -207,12 +178,7 @@ def _clean(text: str) -> str:
 
 
 def _enforce_hint(text: str, student_msg: str = "", turn_count: int = 1) -> str:
-    """
-    Post-processing safety net — ensures the study-mode contract:
-      explore / nudge  → must end with a question, keep it short
-      strong           → can be longer, should still end with a question
-      explain          → full answer allowed, no forced question
-    """
+    # ensures: explore/nudge end with ?, strong ends with ?, explain is free
     text = text.strip()
     stage = _ladder_stage(turn_count)
 
@@ -254,7 +220,7 @@ def _enforce_hint(text: str, student_msg: str = "", turn_count: int = 1) -> str:
     return core + ". What do you think?"
 
 
-# ── System prompt ─────────────────────────────────────────────────────────────
+# System prompt
 SYSTEM_PROMPT = """You are EduBot, a friendly AI study buddy helping students learn computer science. Your job is to make the student THINK and DISCOVER the answer themselves — not to hand it to them.
 
 Your approach (study mode):
@@ -314,9 +280,8 @@ Tutor: Right! And then what do you do next — if the word you want comes after 
 Continue in this style. Guide, don't tell. One step at a time."""
 
 
-# ── Public API ────────────────────────────────────────────────────────────────
+# Public API
 def ask(question: str, history: list = None) -> str:
-    """Single-turn Q&A (stateless). Uses turn_count=1 (Socratic mode)."""
     messages = [{"role": "system", "content": SYSTEM_PROMPT}]
     if history:
         messages.extend(history)
@@ -326,18 +291,6 @@ def ask(question: str, history: list = None) -> str:
 
 
 class QASession:
-    """
-    Multi-turn dialogue with study-mode Socratic escalation.
-
-    The session automatically escalates hint strength as turns increase:
-      turns 1-3   → explore  (ask what they know, use analogies, one Q per reply)
-      turns 4-6   → nudge    (break problem into smaller pieces, concrete hints)
-      turns 7-9   → strong   (nearly reveal, fill in gaps, one final question)
-      turn  10+   → explain  (give a clear summary after genuine effort)
-
-    Frustration / "I don't know" signals bump the effective turn count +2,
-    so the student gets a bigger hint sooner.
-    """
 
     def __init__(self, system_prompt: str = SYSTEM_PROMPT):
         self.system_prompt = system_prompt
@@ -356,7 +309,6 @@ class QASession:
     def chat(self, question: str,
              temperature: float = 0.5,
              max_new_tokens: int = 150) -> str:
-        """Send a message, apply hint ladder, return the tutor response."""
         self.turn_count += 1
 
         # Detect frustration and bump effective turn
@@ -386,5 +338,5 @@ class QASession:
         self.turn_count = 0
         self._frustration_bumps = 0
 
-    def get_history(self) -> list:
+    def get_history(self):
         return self.history

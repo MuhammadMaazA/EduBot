@@ -1,12 +1,6 @@
-"""
-EduBot — Modal deployment script.
-
-Hosts Phi-3-mini + coding LoRA adapter on a cloud GPU (T4 by default).
-Supports 4 concurrent sessions with full Socratic hint-ladder logic.
-
-Deploy:   modal deploy modal_deploy.py
-Test:     modal run modal_deploy.py
-"""
+# EduBot — deploys Phi-3-mini + coding LoRA on Modal (T4 GPU).
+# 4 concurrent students, scaledown after 5 min idle.
+# deploy: modal deploy modal_deploy.py
 from __future__ import annotations
 
 import re
@@ -15,10 +9,10 @@ from typing import Optional
 
 import modal
 
-# ── Modal setup ───────────────────────────────────────────────────────────────
+# Modal setup
 app = modal.App("edubot")
 
-# Container image — installs everything once, cached afterwards
+# Container image
 image = (
     modal.Image.debian_slim(python_version="3.10")
     .pip_install(
@@ -32,15 +26,15 @@ image = (
     )
 )
 
-# Persistent volume to cache the ~7 GB base model between deploys
+# Persistent volume to cache the base model between deploys
 model_cache = modal.Volume.from_name("edubot-model-cache", create_if_missing=True)
 
-# ── Constants ─────────────────────────────────────────────────────────────────
-BASE_MODEL      = "microsoft/Phi-3-mini-128k-instruct"
-ADAPTER_REPO    = "MuhammadMaazA/phi3-coding-adapter"   # ← your HF repo
-CACHE_DIR       = "/cache"
+# Constants
+BASE_MODEL   = "microsoft/Phi-3-mini-128k-instruct"
+ADAPTER_REPO = "MuhammadMaazA/phi3-coding-adapter"
+CACHE_DIR    = "/cache"
 
-# ── Hint ladder (same as local qa.py) ─────────────────────────────────────────
+# Hint ladder (same logic as local qa.py)
 STAGE_EXPLORE = "explore"
 STAGE_NUDGE   = "nudge"
 STAGE_STRONG  = "strong"
@@ -95,7 +89,7 @@ HINT_PROMPTS = {
     3: "Be more direct: give a strong specific hint, but still end with a question. Don't give the full answer yet.",
 }
 
-# ── Text processing helpers (matching qa.py) ──────────────────────────────────
+# Text processing helpers (matching qa.py)
 _IDK_PATTERNS = re.compile(
     r"(i\s*don.?t\s*know|no\s*idea|no\s*clue|i.?m\s*stuck|i\s*give\s*up|"
     r"just\s*tell\s*me|can\s*you\s*just|please\s*just|i\s*can.?t|help\s*me|"
@@ -213,8 +207,7 @@ def _build_system_prompt(hint_mode: bool = True, hint_level: int = 2) -> str:
     return SYSTEM_PROMPT + f"\n\nHint style for this session: {hint_instr}"
 
 
-# ── Session state ─────────────────────────────────────────────────────────────
-# In-memory session storage (per container — fine for a 3-hour experiment)
+# Session state
 _sessions: dict[str, dict] = {}
 
 
@@ -228,22 +221,20 @@ def _get_session(session_id: str) -> dict:
     return _sessions[session_id]
 
 
-# ── Modal class ───────────────────────────────────────────────────────────────
+# Modal class
 @app.cls(
     image=image,
-    gpu="T4",                       # 16 GB VRAM — swap to "A10G" for 24 GB
-    timeout=600,                    # 10 min max per request
-    scaledown_window=300,           # 5 min idle → sleep (stops billing)
+    gpu="T4",
+    timeout=600,
+    scaledown_window=300,
     volumes={CACHE_DIR: model_cache},
-    retries=0,                      # don't retry on startup failure — surface error fast
+    retries=0,
 )
-@modal.concurrent(max_inputs=4)     # 4 simultaneous users on one GPU
+@modal.concurrent(max_inputs=4)
 class EduBotModel:
-    """Singleton Phi-3-mini + LoRA model on a Modal GPU container."""
 
     @modal.enter()
     def load_model(self):
-        """Called once when the container starts — loads model + adapter."""
         import torch
         from transformers import AutoModelForCausalLM, AutoTokenizer
         from peft import PeftModel
@@ -305,19 +296,6 @@ class EduBotModel:
 
     @modal.fastapi_endpoint(method="POST", label="edubot-chat")
     def chat(self, request: dict) -> dict:
-        """
-        Main chat endpoint.
-
-        POST JSON body:
-        {
-            "question":    "What is a for loop?",
-            "session_id":  "student-1",       // unique per student
-            "temperature":  0.5,              // optional
-            "max_tokens":   120,              // optional
-            "hint_mode":    true,             // optional
-            "hint_level":   2                 // optional (1=gentle, 2=normal, 3=direct)
-        }
-        """
         question   = request.get("question", "").strip()
         session_id = request.get("session_id", "default")
         temperature = float(request.get("temperature", 0.5))
@@ -379,7 +357,6 @@ class EduBotModel:
 
     @modal.fastapi_endpoint(method="GET", label="edubot-health")
     def health(self) -> dict:
-        """Health check endpoint."""
         return {
             "status": "ok",
             "model_loaded": hasattr(self, "model"),
@@ -389,17 +366,16 @@ class EduBotModel:
 
     @modal.fastapi_endpoint(method="POST", label="edubot-reset")
     def reset_session(self, request: dict) -> dict:
-        """Reset a specific session's conversation history."""
         session_id = request.get("session_id", "default")
         if session_id in _sessions:
             del _sessions[session_id]
         return {"status": "ok", "session_id": session_id}
 
 
-# ── Local test entrypoint ─────────────────────────────────────────────────────
+# Local test entrypoint
 @app.local_entrypoint()
 def main():
-    """Fire 4 concurrent test questions to verify the deployment."""
+    # quick smoke test: fire 4 concurrent questions
     import concurrent.futures
 
     model = EduBotModel()
