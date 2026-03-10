@@ -1,16 +1,57 @@
 """Activity window with chatbot, coding area, scorecard, and settings."""
 import html
+import json
 import re
 import sys
 import os
 import tempfile
+import urllib.request
+import uuid
 from pathlib import Path
 
 from PyQt6 import uic
-from PyQt6.QtCore import QProcess, QRegularExpression, QTimer
+from PyQt6.QtCore import QProcess, QRegularExpression, QThread, QTimer, pyqtSignal
 from PyQt6.QtGui import QColor, QPalette, QTextCharFormat, QTextCursor
 from PyQt6.QtWidgets import QWidget, QDialog, QLabel, QHBoxLayout, QSizePolicy
 from PyQt6.QtGui import QSyntaxHighlighter
+
+# ── Modal backend URL ─────────────────────────────────────────────────────────
+MODAL_CHAT_URL  = "https://muhammadmaaza--edubot-chat.modal.run"
+MODAL_RESET_URL = "https://muhammadmaaza--edubot-reset.modal.run"
+
+
+class _ChatWorker(QThread):
+    """Runs the Modal HTTP request off the main thread so the GUI stays responsive."""
+    finished = pyqtSignal(dict)   # emits the JSON response
+    error    = pyqtSignal(str)    # emits an error message
+
+    def __init__(self, question: str, session_id: str, parent=None):
+        super().__init__(parent)
+        self._question   = question
+        self._session_id = session_id
+
+    def run(self):
+        payload = json.dumps({
+            "question":    self._question,
+            "session_id":  self._session_id,
+            "temperature": 0.5,
+            "max_tokens":  150,
+            "hint_mode":   True,
+            "hint_level":  2,
+        }).encode("utf-8")
+
+        req = urllib.request.Request(
+            MODAL_CHAT_URL,
+            data=payload,
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        try:
+            with urllib.request.urlopen(req, timeout=120) as resp:
+                data = json.loads(resp.read())
+            self.finished.emit(data)
+        except Exception as exc:
+            self.error.emit(str(exc))
 
 # path to activity_window.ui
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -90,8 +131,9 @@ class ActivitySettingsDialog(QDialog):
 # Chat bubble helper
 # ──────────────────────────────────────────────────────────────────────────────
 
-def _append_bubble(scroll_area, bubble_layout, text: str, is_user: bool) -> None:
-    """Append a rounded QLabel bubble.  User = right/blue, Robot = left/navy."""
+def _append_bubble(scroll_area, bubble_layout, text: str, is_user: bool) -> QWidget:
+    """Append a rounded QLabel bubble.  User = right/blue, Robot = left/navy.
+    Returns the row QWidget so the caller can remove it later if needed."""
     bg = "#2563eb" if is_user else "#1e3a5f"
 
     bubble = QLabel(text)
@@ -125,6 +167,7 @@ def _append_bubble(scroll_area, bubble_layout, text: str, is_user: bool) -> None
             scroll_area.verticalScrollBar().maximum()
         ),
     )
+    return row
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -144,6 +187,11 @@ class ActivityWindow(QWidget):
         self._code_process: QProcess | None = None
         self._tmp_script: str | None        = None
         self._stopwatch_seconds  = 0
+
+        # Chat / Modal session state
+        self._session_id: str = f"session-{uuid.uuid4().hex[:8]}"
+        self._chat_worker: _ChatWorker | None = None
+        self._thinking_bubble: QWidget | None = None
 
         # Stopwatch
         self._stopwatch_timer = QTimer(self)
@@ -227,13 +275,69 @@ class ActivityWindow(QWidget):
         text = self.chat_input.text().strip()
         if not text:
             return
+        # Don't allow another message while the model is thinking
+        if self._chat_worker is not None and self._chat_worker.isRunning():
+            return
+
         _append_bubble(self.chat_scroll, self.chat_bubble_layout, text, is_user=True)
         self.chat_input.clear()
-        _append_bubble(
+
+        # Show a "thinking" bubble while waiting for the backend
+        self._thinking_bubble = _append_bubble(
             self.chat_scroll,
             self.chat_bubble_layout,
-            "(response to be filled in later)",
+            "Thinking...",
             is_user=False,
+        )
+
+        # Disable input while waiting
+        self.chat_input.setEnabled(False)
+        self.send_message_button.setEnabled(False)
+
+        # Fire off the request in a background thread
+        self._chat_worker = _ChatWorker(text, self._session_id, parent=self)
+        self._chat_worker.finished.connect(self._on_chat_response)
+        self._chat_worker.error.connect(self._on_chat_error)
+        self._chat_worker.start()
+
+    def _remove_thinking_bubble(self):
+        """Remove the temporary 'Thinking...' bubble."""
+        if self._thinking_bubble is not None:
+            self._thinking_bubble.setParent(None)
+            self._thinking_bubble.deleteLater()
+            self._thinking_bubble = None
+
+    def _on_chat_response(self, data: dict):
+        """Called when the Modal endpoint returns successfully."""
+        self._remove_thinking_bubble()
+        self.chat_input.setEnabled(True)
+        self.send_message_button.setEnabled(True)
+        self.chat_input.setFocus()
+
+        answer = data.get("answer", "")
+        error  = data.get("error", "")
+
+        if error:
+            _append_bubble(
+                self.chat_scroll, self.chat_bubble_layout,
+                f"Error: {error}", is_user=False,
+            )
+        else:
+            _append_bubble(
+                self.chat_scroll, self.chat_bubble_layout,
+                answer, is_user=False,
+            )
+
+    def _on_chat_error(self, message: str):
+        """Called when the HTTP request itself fails."""
+        self._remove_thinking_bubble()
+        self.chat_input.setEnabled(True)
+        self.send_message_button.setEnabled(True)
+        self.chat_input.setFocus()
+
+        _append_bubble(
+            self.chat_scroll, self.chat_bubble_layout,
+            f"Connection error: {message}", is_user=False,
         )
 
     # ── code runner ───────────────────────────────────────────────────────────
