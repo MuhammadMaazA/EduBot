@@ -168,12 +168,18 @@ def _rewrite(student_msg: str, turn_count: int = 1) -> str:
     return prefix + msg if prefix else msg
 
 
-def _clean(text: str) -> str:
+def _clean(text: str, turn_count: int = 1) -> str:
     text = re.sub(r"^\s*(Robot|Tutor|Assistant|AI)\s*:\s*", "", text, flags=re.IGNORECASE)
     for marker in ("Student:", "You:", "User:", "Human:"):
         idx = text.find(marker)
         if idx != -1:
             text = text[:idx]
+    # Strip repeated greetings on turns 2+
+    if turn_count > 1:
+        text = re.sub(
+            r"^\s*(Hey there!?|Hello!?|Hi there!?|Hi!?|Hey!?|Howdy!?)\s*",
+            "", text, flags=re.IGNORECASE,
+        )
     return re.sub(r"\n{2,}", " ", text).strip()
 
 
@@ -326,7 +332,7 @@ class QASession:
 
         raw    = _qa_generate(messages, temperature=temperature,
                               max_new_tokens=max_new_tokens)
-        answer = _enforce_hint(_clean(raw), question, turn_count=etc)
+        answer = _enforce_hint(_clean(raw, turn_count=self.turn_count), question, turn_count=etc)
 
         # Store original student message (not the rewritten one) so history reads naturally
         self.history.append({"role": "user",      "content": question})
