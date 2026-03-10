@@ -1,0 +1,490 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ActivityWindow</class>
+ <widget class="QWidget" name="ActivityWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1260</width>
+    <height>700</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Activity 1</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">QWidget#ActivityWindow { background-color: #ffffff; }
+QLabel#activity_title_label { color: #1e3a5f; font-size: 22px; font-weight: bold; }
+QLabel#activity_description_label { color: #1e3a5f; font-size: 14px; }
+QLabel#camera_placeholder { background-color: #2d5a87; color: white; font-size: 12px; border-radius: 8px; padding: 20px; min-width: 200px; min-height: 200px; }
+QLabel#activity_placeholder { background-color: #e8eef4; color: #1e3a5f; font-size: 14px; border: 2px dashed #2d5a87; border-radius: 8px; padding: 40px; }
+QGroupBox#chat_group { background-color: #2d5a87; border: none; border-radius: 10px; padding: 8px; margin-top: 0px; }
+QGroupBox#chat_group::title { color: transparent; font-size: 0px; }
+QGroupBox#chat_group QLineEdit { background-color: #ffffff; color: #1a1a2e; border-radius: 6px; padding: 8px; }
+QGroupBox#chat_group QPushButton { background-color: #2563eb; color: white; font-weight: bold; padding: 8px 16px; border-radius: 6px; border: none; }
+QGroupBox#chat_group QPushButton:hover { background-color: #1d4ed8; }
+QGroupBox#coding_group { background-color: #2d5a87; border: none; border-radius: 10px; padding: 8px; margin-top: 0px; }
+QGroupBox#coding_group::title { color: transparent; font-size: 0px; }
+QLabel#terminal_label { color: #ffffff; font-weight: bold; }
+QPushButton#settings_button { background-color: #2563eb; color: white; font-size: 24px; padding: 8px; border-radius: 8px; border: none; min-width: 48px; min-height: 48px; max-width: 48px; max-height: 48px; }
+QPushButton#settings_button:hover { background-color: #1d4ed8; }
+QPushButton#play_code_button { background-color: #16a34a; color: white; font-size: 28px; padding: 4px; border-radius: 6px; border: none; min-width: 32px; min-height: 32px; max-width: 32px; max-height: 32px; }
+QPushButton#play_code_button:hover { background-color: #15803d; }
+QPushButton#stop_code_button { background-color: #dc2626; color: white; font-size: 16px; padding: 4px; border-radius: 6px; border: none; min-width: 32px; min-height: 32px; max-width: 32px; max-height: 32px; }
+QPushButton#stop_code_button:hover { background-color: #b91c1c; }
+QGroupBox#scorecard_group { background-color: #2d5a87; border: none; border-radius: 10px; padding: 8px; margin-top: 0px; }
+QGroupBox#scorecard_group::title { color: transparent; font-size: 0px; }
+QGroupBox#scorecard_group QLabel { color: white; }
+QLabel#robot_picture_placeholder { background-color: #1e3a5f; color: white; font-size: 11px; border-radius: 6px; padding: 16px; min-height: 120px; }
+QLabel#section_title { color: #1e3a5f; font-size: 13px; font-weight: bold; }
+QScrollArea#chat_scroll { background-color: #f0f4f8; border-radius: 6px; border: none; }
+QWidget#chat_bubble_container { background-color: #f0f4f8; }</string>
+  </property>
+
+  <layout class="QGridLayout" name="main_grid_layout">
+   <property name="spacing"><number>12</number></property>
+   <property name="leftMargin"><number>16</number></property>
+   <property name="topMargin"><number>16</number></property>
+   <property name="rightMargin"><number>16</number></property>
+   <property name="bottomMargin"><number>16</number></property>
+
+   <!-- ═══════════════════════════════════════════════════════
+        Column 0 (rowspan 3):
+          settings button
+          camera
+          ← tight gap →
+          "Scorecard" label  (sits right above the box)
+          scorecard group box
+          ← stretch fills remaining space at bottom →
+        ═══════════════════════════════════════════════════════ -->
+   <item row="0" column="0" rowspan="3">
+    <layout class="QVBoxLayout" name="left_col_layout">
+     <property name="spacing"><number>0</number></property>
+
+     <!-- Settings button -->
+     <item>
+      <widget class="QPushButton" name="settings_button">
+       <property name="text"><string>⚙</string></property>
+       <property name="toolTip"><string>Open settings</string></property>
+      </widget>
+     </item>
+
+     <!-- 8 px gap between settings and camera -->
+     <item>
+      <spacer name="sp_settings_cam">
+       <property name="orientation"><enum>Qt::Orientation::Vertical</enum></property>
+       <property name="sizeType"><enum>QSizePolicy::Policy::Fixed</enum></property>
+       <property name="sizeHint" stdset="0"><size><width>0</width><height>8</height></size></property>
+      </spacer>
+     </item>
+
+     <!-- Camera -->
+     <item>
+      <widget class="QLabel" name="camera_placeholder">
+       <property name="text"><string>Robot Camera (to be filled in later)</string></property>
+       <property name="alignment"><set>Qt::AlignmentFlag::AlignCenter</set></property>
+       <property name="minimumSize"><size><width>200</width><height>200</height></size></property>
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+         <horstretch>0</horstretch><verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+      </widget>
+     </item>
+
+     <!-- 8 px gap between camera and "Scorecard" label -->
+     <item>
+      <spacer name="sp_cam_scorecard">
+       <property name="orientation"><enum>Qt::Orientation::Vertical</enum></property>
+       <property name="sizeType"><enum>QSizePolicy::Policy::Fixed</enum></property>
+       <property name="sizeHint" stdset="0"><size><width>0</width><height>8</height></size></property>
+      </spacer>
+     </item>
+
+     <!-- "Scorecard" label immediately above the box -->
+     <item>
+      <widget class="QLabel" name="scorecard_title_label">
+       <property name="text"><string>Scorecard</string></property>
+       <property name="styleSheet"><string notr="true">color: #1e3a5f; font-size: 13px; font-weight: bold;</string></property>
+      </widget>
+     </item>
+
+     <!-- 4 px gap between label and box -->
+     <item>
+      <spacer name="sp_scorecard_label_box">
+       <property name="orientation"><enum>Qt::Orientation::Vertical</enum></property>
+       <property name="sizeType"><enum>QSizePolicy::Policy::Fixed</enum></property>
+       <property name="sizeHint" stdset="0"><size><width>0</width><height>4</height></size></property>
+      </spacer>
+     </item>
+
+     <!-- Scorecard group box -->
+     <item>
+      <widget class="QGroupBox" name="scorecard_group">
+       <property name="title"><string/></property>
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+         <horstretch>0</horstretch><verstretch>1</verstretch>
+        </sizepolicy>
+       </property>
+       <layout class="QVBoxLayout" name="scorecard_layout">
+        <property name="spacing"><number>8</number></property>
+        <item>
+         <widget class="QLabel" name="robot_picture_placeholder">
+          <property name="text"><string>Robot picture (to be filled in later)</string></property>
+          <property name="alignment"><set>Qt::AlignmentFlag::AlignCenter</set></property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="current_activity_label">
+          <property name="text"><string>Current activity: 1</string></property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="stopwatch_label">
+          <property name="text"><string>Time: 0:00</string></property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="scorecard_log_label">
+          <property name="text"><string>Passed: 0  |  Failed: 0</string></property>
+          <property name="wordWrap"><bool>true</bool></property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+
+    </layout>
+   </item>
+
+   <!-- ═══════════════════════════════════════════════════════
+        Column 1, Row 0: activity title / description
+        ═══════════════════════════════════════════════════════ -->
+   <item row="0" column="1">
+    <layout class="QVBoxLayout" name="title_layout">
+     <property name="spacing"><number>6</number></property>
+     <item>
+      <widget class="QLabel" name="activity_title_label">
+       <property name="text"><string>Activity 1</string></property>
+       <property name="alignment"><set>Qt::AlignmentFlag::AlignCenter</set></property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="activity_description_label">
+       <property name="text"><string>Activity description will appear here.</string></property>
+       <property name="alignment"><set>Qt::AlignmentFlag::AlignCenter</set></property>
+       <property name="wordWrap"><bool>true</bool></property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+
+   <!-- ═══════════════════════════════════════════════════════
+        Column 2 (rowspan 3): chat panel
+        "Chat with Robot" label sits above the navy group box.
+        The group box contains a QScrollArea for bubble widgets
+        (real rounded corners) + the input row.
+        ═══════════════════════════════════════════════════════ -->
+   <item row="0" column="2" rowspan="3">
+    <layout class="QVBoxLayout" name="chat_outer_layout">
+     <property name="spacing"><number>4</number></property>
+
+     <!-- "Chat with Robot" label outside the navy box -->
+     <item>
+      <widget class="QLabel" name="chat_title_label">
+       <property name="text"><string>Chat with Robot</string></property>
+       <property name="styleSheet"><string notr="true">color: #1e3a5f; font-size: 13px; font-weight: bold;</string></property>
+      </widget>
+     </item>
+
+     <!-- Navy group box (no Qt title) -->
+     <item>
+      <widget class="QGroupBox" name="chat_group">
+       <property name="title"><string/></property>
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+         <horstretch>0</horstretch><verstretch>1</verstretch>
+        </sizepolicy>
+       </property>
+       <layout class="QVBoxLayout" name="chat_layout">
+        <property name="spacing"><number>8</number></property>
+        <property name="leftMargin"><number>8</number></property>
+        <property name="topMargin"><number>8</number></property>
+        <property name="rightMargin"><number>8</number></property>
+        <property name="bottomMargin"><number>8</number></property>
+
+        <!--
+          Bubble display area: QScrollArea containing a plain QWidget
+          whose layout is populated at runtime by _append_bubble().
+          Using real QLabel widgets gives us genuine CSS border-radius.
+        -->
+        <item>
+         <widget class="QScrollArea" name="chat_scroll">
+          <property name="widgetResizable"><bool>true</bool></property>
+          <property name="minimumHeight"><number>100</number></property>
+          <property name="horizontalScrollBarPolicy"><enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOff</enum></property>
+          <widget class="QWidget" name="chat_bubble_container">
+           <layout class="QVBoxLayout" name="chat_bubble_layout">
+            <property name="spacing"><number>6</number></property>
+            <property name="leftMargin"><number>8</number></property>
+            <property name="topMargin"><number>8</number></property>
+            <property name="rightMargin"><number>8</number></property>
+            <property name="bottomMargin"><number>8</number></property>
+            <!-- Runtime spacer at top pushes bubbles downward; added in __init__ -->
+           </layout>
+          </widget>
+         </widget>
+        </item>
+
+        <!-- Input row -->
+        <item>
+         <layout class="QHBoxLayout" name="chat_input_layout">
+          <item>
+           <widget class="QLineEdit" name="chat_input">
+            <property name="placeholderText"><string>Type your message...</string></property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="send_message_button">
+            <property name="text"><string>Send</string></property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+
+       </layout>
+      </widget>
+     </item>
+
+    </layout>
+   </item>
+
+   <!-- ═══════════════════════════════════════════════════════
+        Column 1, Row 1: activity area
+        ═══════════════════════════════════════════════════════ -->
+   <item row="1" column="1">
+    <widget class="QLabel" name="activity_placeholder">
+     <property name="text"><string>Activity area (to be filled in later)</string></property>
+     <property name="alignment"><set>Qt::AlignmentFlag::AlignCenter</set></property>
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+       <horstretch>0</horstretch>
+       <verstretch>3</verstretch>
+      </sizepolicy>
+     </property>
+    </widget>
+   </item>
+
+   <!-- ═══════════════════════════════════════════════════════
+        Column 1, Row 2: coding area
+
+        Toolbar uses a QGridLayout that mirrors the editor row:
+          col 0 (stretch 1) = Code Editor label + left half of editors
+          col 1 (fixed)     = [▶] [■]  centred over the 6-px gap
+          col 2 (stretch 1) = Terminal Output label + right half
+
+        This guarantees the gap between buttons is always directly
+        above the gap between the two editor panes.
+        ═══════════════════════════════════════════════════════ -->
+   <item row="2" column="1">
+    <layout class="QVBoxLayout" name="coding_outer_layout">
+     <property name="spacing"><number>4</number></property>
+
+     <!-- "Python Coding Area" label above the navy box -->
+     <item>
+      <widget class="QLabel" name="coding_area_title_label">
+       <property name="text"><string>Python Coding Area</string></property>
+       <property name="styleSheet"><string notr="true">color: #1e3a5f; font-size: 13px; font-weight: bold;</string></property>
+      </widget>
+     </item>
+
+     <!-- Navy coding group box -->
+     <item>
+      <widget class="QGroupBox" name="coding_group">
+       <property name="title"><string/></property>
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+         <horstretch>0</horstretch><verstretch>1</verstretch>
+        </sizepolicy>
+       </property>
+
+       <layout class="QVBoxLayout" name="coding_inner_layout">
+        <property name="spacing"><number>4</number></property>
+        <property name="leftMargin"><number>6</number></property>
+        <property name="topMargin"><number>6</number></property>
+        <property name="rightMargin"><number>6</number></property>
+        <property name="bottomMargin"><number>6</number></property>
+
+        <!--
+          Toolbar — QGridLayout, 3 columns, column stretch 1 : 0 : 1
+            col 0: "Code Editor" label, left-aligned
+            col 1: [▶][■] in a nested HBoxLayout, fixed width, centred
+            col 2: "Terminal Output" label, right-aligned
+
+          The editor row below uses the same 3-column grid with the same
+          column stretches, so col 1 (buttons/gap) is always vertically
+          aligned with the 6-px gap between the two editor panes.
+        -->
+        <item>
+         <layout class="QGridLayout" name="coding_toolbar_grid">
+          <property name="spacing"><number>0</number></property>
+
+          <!-- col 0: Code Editor label -->
+          <item row="0" column="0">
+           <widget class="QLabel" name="code_editor_label">
+            <property name="text"><string>Code Editor</string></property>
+            <property name="alignment"><set>Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set></property>
+            <property name="styleSheet">
+             <string notr="true">color: #ffffff; font-weight: bold; margin-left: 8px;</string>
+            </property>
+           </widget>
+          </item>
+
+          <!-- col 1: [▶][■] buttons, horizontally centred -->
+          <item row="0" column="1">
+           <layout class="QHBoxLayout" name="btn_layout">
+            <property name="spacing"><number>6</number></property>
+            <item>
+             <widget class="QPushButton" name="play_code_button">
+              <property name="text"><string>▶</string></property>
+              <property name="toolTip"><string>Run code</string></property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="stop_code_button">
+              <property name="text"><string>■</string></property>
+              <property name="toolTip"><string>Stop program</string></property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+
+          <!-- col 2: Terminal Output label, right-aligned -->
+          <item row="0" column="2">
+           <widget class="QLabel" name="terminal_label">
+            <property name="text"><string>Terminal Output</string></property>
+            <property name="alignment"><set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignVCenter</set></property>
+            <property name="styleSheet">
+             <string notr="true">color: #ffffff; font-weight: bold; margin-right: 8px;</string>
+            </property>
+           </widget>
+          </item>
+
+         </layout>
+        </item>
+
+        <!--
+          Editor row — same 3-column grid, same stretches.
+          col 0 = code editor, col 1 = 6-px spacer, col 2 = terminal
+        -->
+        <item>
+         <layout class="QGridLayout" name="coding_editors_grid">
+          <property name="spacing"><number>0</number></property>
+
+          <!-- col 0: code editor -->
+          <item row="0" column="0">
+           <widget class="QPlainTextEdit" name="code_editor">
+            <property name="placeholderText"><string>Enter Python commands here...</string></property>
+            <property name="minimumHeight"><number>90</number></property>
+            <property name="maximumHeight"><number>150</number></property>
+            <property name="lineWrapMode"><enum>QPlainTextEdit::LineWrapMode::NoWrap</enum></property>
+            <property name="tabStopDistance"><double>16.0</double></property>
+            <property name="styleSheet">
+             <string notr="true">background-color: #1a1a2e; color: #ffffff; font-family: Consolas, monospace; font-size: 13px; border-radius: 6px; padding: 8px;</string>
+            </property>
+           </widget>
+          </item>
+
+          <!-- col 1: 6-px fixed spacer — this is the visible gap / divider -->
+          <item row="0" column="1">
+           <spacer name="editor_gap">
+            <property name="orientation"><enum>Qt::Orientation::Horizontal</enum></property>
+            <property name="sizeType"><enum>QSizePolicy::Policy::Fixed</enum></property>
+            <property name="sizeHint" stdset="0"><size><width>6</width><height>20</height></size></property>
+           </spacer>
+          </item>
+
+          <!-- col 2: terminal (read-only display) -->
+          <item row="0" column="2">
+           <widget class="QTextEdit" name="terminal_output">
+            <property name="readOnly"><bool>true</bool></property>
+            <property name="placeholderText"><string>Output will appear here...</string></property>
+            <property name="minimumHeight"><number>90</number></property>
+            <property name="maximumHeight"><number>150</number></property>
+            <property name="styleSheet">
+             <string notr="true">background-color: #1a1a2e; color: #ffffff; font-family: Consolas, monospace; font-size: 13px; border-radius: 6px; padding: 8px;</string>
+            </property>
+           </widget>
+          </item>
+
+         </layout>
+        </item>
+
+        <!--
+          Stdin input row — hidden by default, shown only when a process
+          is running and waiting for user input.
+          Spans only the terminal (right) half so it lines up under the
+          terminal pane.  The left half remains empty.
+        -->
+        <item>
+         <layout class="QGridLayout" name="stdin_row_grid">
+          <property name="spacing"><number>0</number></property>
+
+          <!-- left empty spacer mirrors code editor column -->
+          <item row="0" column="0">
+           <spacer name="stdin_left_spacer">
+            <property name="orientation"><enum>Qt::Orientation::Horizontal</enum></property>
+            <property name="sizeType"><enum>QSizePolicy::Policy::Expanding</enum></property>
+            <property name="sizeHint" stdset="0"><size><width>40</width><height>20</height></size></property>
+           </spacer>
+          </item>
+
+          <!-- 6-px gap spacer mirrors editor gap -->
+          <item row="0" column="1">
+           <spacer name="stdin_gap_spacer">
+            <property name="orientation"><enum>Qt::Orientation::Horizontal</enum></property>
+            <property name="sizeType"><enum>QSizePolicy::Policy::Fixed</enum></property>
+            <property name="sizeHint" stdset="0"><size><width>6</width><height>20</height></size></property>
+           </spacer>
+          </item>
+
+          <!-- stdin input row aligned under terminal -->
+          <item row="0" column="2">
+           <layout class="QHBoxLayout" name="stdin_input_layout">
+            <property name="spacing"><number>4</number></property>
+            <item>
+             <widget class="QLineEdit" name="stdin_input">
+              <property name="placeholderText"><string>Type input and press Enter...</string></property>
+              <property name="styleSheet">
+               <string notr="true">background-color: #1a1a2e; color: #00ff88; font-family: Consolas, monospace; font-size: 13px; border-radius: 6px; padding: 6px 8px; border: 1px solid #2d5a87;</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="stdin_send_button">
+              <property name="text"><string>↵</string></property>
+              <property name="toolTip"><string>Send input to program</string></property>
+              <property name="styleSheet">
+               <string notr="true">background-color: #2563eb; color: white; font-size: 16px; font-weight: bold; border-radius: 6px; border: none; min-width: 36px; max-width: 36px; min-height: 34px; max-height: 34px; padding: 0px;</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+
+         </layout>
+        </item>
+
+       </layout>
+      </widget>
+     </item>
+    </layout>
+   </item>
+
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

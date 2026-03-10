@@ -26,6 +26,7 @@ wheels/
 # Virtual Environment
 venv39/
 venv/
+.venv/
 
 # Cache directories
 .cache/

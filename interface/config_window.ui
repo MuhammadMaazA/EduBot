@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ConfigWindow</class>
+ <widget class="QWidget" name="ConfigWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>480</width>
+    <height>520</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Config</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">QWidget#ConfigWindow { background-color: #ffffff; }
+QLabel#title_label { background-color: #1e3a5f; color: white; font-size: 22px; font-weight: bold; padding: 20px; border-radius: 10px; }
+QLabel#subtitle_label { color: #1e3a5f; font-size: 13px; }
+QLabel#welcome_message_label { color: #1e3a5f; font-size: 14px; }
+QGroupBox#robot_settings_group { background-color: #2d5a87; color: white; font-weight: bold; font-size: 12px; border: none; border-radius: 10px; padding: 16px; margin-top: 28px; }
+QGroupBox#robot_settings_group::title { subcontrol-origin: margin; left: 14px; padding: 6px 10px; color: black; font-size: 16px; }
+QGroupBox QLabel { color: white; }
+QLabel#volume_label { margin-top: 16px; }
+QSlider#robot_volume { margin-top: 10px; min-height: 28px; padding: 4px 0; }
+QGroupBox QLineEdit { background-color: #ffffff; color: #1a1a2e; border-radius: 6px; padding: 8px; min-height: 20px; }
+QGroupBox QSlider::groove:horizontal { background: #4a7ab0; height: 8px; border-radius: 4px; }
+QGroupBox QSlider::handle:horizontal { background: white; width: 18px; margin: -5px 0; border-radius: 9px; }
+QPushButton#save_settings_button { background-color: #2563eb; color: white; font-weight: bold; padding: 12px 24px; border-radius: 8px; border: none; margin-top: 20px; }
+QPushButton#save_settings_button:hover { background-color: #1d4ed8; }
+QPushButton#start_button { background-color: #2563eb; color: white; font-size: 14px; font-weight: bold; padding: 14px; border-radius: 10px; border: none; min-height: 48px; }
+QPushButton#start_button:hover { background-color: #1d4ed8; }</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="spacing">
+    <number>14</number>
+   </property>
+   <property name="leftMargin">
+    <number>20</number>
+   </property>
+   <property name="topMargin">
+    <number>20</number>
+   </property>
+   <property name="rightMargin">
+    <number>20</number>
+   </property>
+   <property name="bottomMargin">
+    <number>20</number>
+   </property>
+   <item>
+    <widget class="QLabel" name="title_label">
+     <property name="text">
+      <string>🤖 Learning with Social Robots! 🤖</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignmentFlag::AlignCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="welcome_message_label">
+     <property name="text">
+      <string>Welcome! Let's get your robot ready.</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignmentFlag::AlignCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="subtitle_label">
+     <property name="text">
+      <string>Configure your robot, then start the activity.</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignmentFlag::AlignCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="robot_settings_group">
+     <property name="title">
+      <string>Robot settings</string>
+     </property>
+     <layout class="QFormLayout" name="formLayout">
+      <item row="0" column="0">
+       <widget class="QLabel" name="name_label">
+        <property name="text">
+         <string>Robot name:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QLineEdit" name="robot_name">
+        <property name="placeholderText">
+         <string>e.g. Reachy</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="volume_label">
+        <property name="text">
+         <string>Volume:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QSlider" name="robot_volume">
+        <property name="minimum">
+         <number>0</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="value">
+         <number>70</number>
+        </property>
+        <property name="orientation">
+         <enum>Qt::Orientation::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="buttons_layout">
+     <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Orientation::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="save_settings_button">
+       <property name="text">
+        <string>Save settings</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_2">
+       <property name="orientation">
+        <enum>Qt::Orientation::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Orientation::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item>
+    <widget class="QPushButton" name="start_button">
+     <property name="text">
+      <string>Start activity</string>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
