@@ -27,7 +27,18 @@ class ConfigWindow(QWidget):
 
     def start_activity(self):
         self.hide()
-        self._activity_window = ActivityWindow(activity_number=1)
+        self._open_activity(1)
+
+    def _open_activity(self, number: int):
+        """Open the given activity number, closing any existing activity window."""
+        if self._activity_window is not None:
+            self._activity_window.close()
+            self._activity_window = None
+
+        self._activity_window = ActivityWindow(
+            activity_number=number,
+            on_navigate=self._open_activity,
+        )
         self._activity_window.show()
 
 
