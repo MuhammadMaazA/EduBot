@@ -57,6 +57,11 @@ class _ChatWorker(QThread):
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 UI_PATH = os.path.join(CURRENT_DIR, "activity_window.ui")
 
+
+# path to activity_settings_window.ui
+CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+UI_SETTINGS_PATH = os.path.join(CURRENT_DIR, "activity_settings_window.ui")
+
 # ──────────────────────────────────────────────────────────────────────────────
 # Python syntax highlighter
 # ──────────────────────────────────────────────────────────────────────────────
@@ -114,7 +119,7 @@ class _PythonHighlighter(QSyntaxHighlighter):
 class ActivitySettingsDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
-        uic.loadUi("activity_settings_window.ui", self)
+        uic.loadUi(UI_SETTINGS_PATH, self)
         self.save_settings_button.clicked.connect(self._save)
         self.close_button.clicked.connect(self.accept)
         self.start_listening_button.clicked.connect(lambda: print("Start listening"))
@@ -177,11 +182,58 @@ def _append_bubble(scroll_area, bubble_layout, text: str, is_user: bool) -> QWid
 class ActivityWindow(QWidget):
     """Main activity window."""
 
-    def __init__(self, activity_number: int = 1, parent=None):
+    # Per-activity content: title, description, placeholder text.
+    # Add more entries here as new activities are created.
+    ACTIVITY_DATA = {
+        1: {
+            "title":       "Activity 1",
+            "description": "In this activity you will learn the basics of robot movement.",
+            "placeholder": "Activity 1 area (to be filled in later)",
+        },
+        2: {
+            "title":       "Activity 2",
+            "description": "In this activity you will explore sensor input and conditionals.",
+            "placeholder": "Activity 2 area (to be filled in later)",
+        },
+        3: {
+            "title":       "Activity 3",
+            "description": "In this activity you will program the robot to follow a line.",
+            "placeholder": "Activity 3 area (to be filled in later)",
+        },
+        4: {
+            "title":       "Activity 4",
+            "description": "In this activity you will use loops to repeat robot actions.",
+            "placeholder": "Activity 4 area (to be filled in later)",
+        },
+        5: {
+            "title":       "Activity 5",
+            "description": "In this activity you will combine sensors and movement to navigate obstacles.",
+            "placeholder": "Activity 5 area (to be filled in later)",
+        },
+        6: {
+            "title":       "Activity 6",
+            "description": "In this final activity you will build and demonstrate a complete robot program.",
+            "placeholder": "Activity 6 area (to be filled in later)",
+        },
+    }
+    MAX_ACTIVITY = max(ACTIVITY_DATA)
+
+    def __init__(self, activity_number: int = 1, on_navigate=None, parent=None):
+        """
+        Parameters
+        ----------
+        activity_number : int
+            Which activity to display (1-based).
+        on_navigate : callable(int) | None
+            Called with the target activity number when the user clicks
+            Previous / Next.  The caller is responsible for showing the
+            new window and closing this one.
+        """
         super().__init__(parent)
         uic.loadUi(UI_PATH, self)
 
         self._activity_number    = activity_number
+        self._on_navigate        = on_navigate      # callback supplied by main
         self._passed_count       = 0
         self._failed_count       = 0
         self._code_process: QProcess | None = None
@@ -204,13 +256,21 @@ class ActivityWindow(QWidget):
         self.code_editor.setPalette(p)
         self.code_editor.setTabStopDistance(16.0)
 
-        # Window / labels
-        self.setWindowTitle(f"Activity {self._activity_number}")
-        self.activity_title_label.setText(f"Activity {self._activity_number}")
+        # Window / labels — populated from ACTIVITY_DATA
+        data = self.ACTIVITY_DATA.get(activity_number, self.ACTIVITY_DATA[1])
+        self.setWindowTitle(data["title"])
+        self.activity_title_label.setText(data["title"])
+        self.activity_description_label.setText(data["description"])
+        self.activity_placeholder.setText(data["placeholder"])
         self.current_activity_label.setText(
             f"Current activity: {self._activity_number}"
         )
         self._update_scorecard_log()
+
+        # Show/hide navigation buttons depending on position
+        self.prev_activity_button.setVisible(activity_number > 1)
+        self.next_activity_button.setVisible(activity_number < self.MAX_ACTIVITY)
+        self.finish_button.setVisible(activity_number == self.MAX_ACTIVITY)
 
         # Column stretches for coding grid layouts
         # (PyQt6 uic doesn't support columnStretch in .ui files)
@@ -243,6 +303,9 @@ class ActivityWindow(QWidget):
         self.stop_code_button.clicked.connect(self._stop_code)
         self.stdin_input.returnPressed.connect(self._send_stdin)
         self.stdin_send_button.clicked.connect(self._send_stdin)
+        self.prev_activity_button.clicked.connect(self._go_prev)
+        self.next_activity_button.clicked.connect(self._go_next)
+        self.finish_button.clicked.connect(self._finish)
 
     # ── stdin visibility ──────────────────────────────────────────────────────
 
@@ -256,6 +319,20 @@ class ActivityWindow(QWidget):
 
     def _open_settings(self):
         ActivitySettingsDialog(self).exec()
+
+    # ── navigation ────────────────────────────────────────────────────────────
+
+    def _go_prev(self):
+        if self._on_navigate:
+            self._on_navigate(self._activity_number - 1)
+
+    def _go_next(self):
+        if self._on_navigate:
+            self._on_navigate(self._activity_number + 1)
+
+    def _finish(self):
+        """All activities complete — close the window."""
+        self.close()
 
     # ── stopwatch ─────────────────────────────────────────────────────────────
 
