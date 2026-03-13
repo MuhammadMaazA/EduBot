@@ -10,10 +10,12 @@ import uuid
 from pathlib import Path
 
 from PyQt6 import uic
-from PyQt6.QtCore import QProcess, QRegularExpression, QThread, QTimer, pyqtSignal
-from PyQt6.QtGui import QColor, QPalette, QTextCharFormat, QTextCursor
+from PyQt6.QtCore import Qt, QProcess, QRect, QRegularExpression, QThread, QTimer, pyqtSignal
+from PyQt6.QtGui import QColor, QPalette, QPainter, QPainterPath, QPixmap, QTextCharFormat, QTextCursor
 from PyQt6.QtWidgets import QWidget, QDialog, QLabel, QHBoxLayout, QSizePolicy
 from PyQt6.QtGui import QSyntaxHighlighter
+
+from camera_manager import CameraThread, list_cameras
 
 # ── Modal backend URL ─────────────────────────────────────────────────────────
 MODAL_CHAT_URL  = "https://muhammadmaaza--edubot-chat.modal.run"
@@ -117,18 +119,37 @@ class _PythonHighlighter(QSyntaxHighlighter):
 # ──────────────────────────────────────────────────────────────────────────────
 
 class ActivitySettingsDialog(QDialog):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, current_camera_index: int = -1):
         super().__init__(parent)
         uic.loadUi(UI_SETTINGS_PATH, self)
+
+        # Populate camera dropdown and pre-select the currently active camera
+        self._cameras = list_cameras()
+        for _idx, label in self._cameras:
+            self.camera_selector.addItem(label)
+        # Select the entry matching current_camera_index
+        for combo_pos, (cam_idx, _) in enumerate(self._cameras):
+            if cam_idx == current_camera_index:
+                self.camera_selector.setCurrentIndex(combo_pos)
+                break
+
         self.save_settings_button.clicked.connect(self._save)
         self.close_button.clicked.connect(self.accept)
         self.start_listening_button.clicked.connect(lambda: print("Start listening"))
         self.stop_listening_button.clicked.connect(lambda: print("Stop listening"))
 
+    def selected_camera_index(self) -> int:
+        """Return the actual OpenCV camera index chosen in the dropdown."""
+        combo_pos = self.camera_selector.currentIndex()
+        if 0 <= combo_pos < len(self._cameras):
+            return self._cameras[combo_pos][0]
+        return -1
+
     def _save(self):
         print(
             f"Settings saved: Name={self.robot_name.text()}, "
-            f"Volume={self.robot_volume.value()}"
+            f"Volume={self.robot_volume.value()}, "
+            f"Camera index={self.selected_camera_index()}"
         )
 
 
@@ -218,7 +239,8 @@ class ActivityWindow(QWidget):
     }
     MAX_ACTIVITY = max(ACTIVITY_DATA)
 
-    def __init__(self, activity_number: int = 1, on_navigate=None, parent=None):
+    def __init__(self, activity_number: int = 1, on_navigate=None,
+                 camera_index: int = -1, parent=None):
         """
         Parameters
         ----------
@@ -228,12 +250,17 @@ class ActivityWindow(QWidget):
             Called with the target activity number when the user clicks
             Previous / Next.  The caller is responsible for showing the
             new window and closing this one.
+        camera_index : int
+            OpenCV camera index to stream into the camera placeholder.
+            -1 means no camera (shows "No camera output" text).
         """
         super().__init__(parent)
         uic.loadUi(UI_PATH, self)
 
         self._activity_number    = activity_number
-        self._on_navigate        = on_navigate      # callback supplied by main
+        self._on_navigate        = on_navigate
+        self._camera_index       = camera_index
+        self._camera_thread: CameraThread | None = None
         self._passed_count       = 0
         self._failed_count       = 0
         self._code_process: QProcess | None = None
@@ -267,6 +294,9 @@ class ActivityWindow(QWidget):
         )
         self._update_scorecard_log()
 
+        # Robot picture in scorecard
+        self._load_robot_picture()
+
         # Show/hide navigation buttons depending on position
         self.prev_activity_button.setVisible(activity_number > 1)
         self.next_activity_button.setVisible(activity_number < self.MAX_ACTIVITY)
@@ -284,6 +314,12 @@ class ActivityWindow(QWidget):
         self.stdin_row_grid.setColumnStretch(1, 0)
         self.stdin_row_grid.setColumnStretch(2, 1)
 
+        # Fix the main 3-column grid so the left column (col 0) never grows
+        # and cols 1 (activity) and 2 (chat) always fill the remaining space.
+        self.main_grid_layout.setColumnStretch(0, 0)
+        self.main_grid_layout.setColumnStretch(1, 3)
+        self.main_grid_layout.setColumnStretch(2, 2)
+
         # stdin bar hidden until a process starts
         self._set_stdin_visible(False)
 
@@ -292,6 +328,7 @@ class ActivityWindow(QWidget):
 
         self._connect_signals()
         self._stopwatch_timer.start(1000)
+        self._start_camera(camera_index)
 
     # ── signal wiring ─────────────────────────────────────────────────────────
 
@@ -318,7 +355,70 @@ class ActivityWindow(QWidget):
     # ── settings ──────────────────────────────────────────────────────────────
 
     def _open_settings(self):
-        ActivitySettingsDialog(self).exec()
+        dlg = ActivitySettingsDialog(self, current_camera_index=self._camera_index)
+        dlg.exec()
+        # Apply any camera change made in the settings dialog
+        new_idx = dlg.selected_camera_index()
+        if new_idx != self._camera_index:
+            self._camera_index = new_idx
+            self._start_camera(new_idx)
+
+    # ── camera ────────────────────────────────────────────────────────────────
+
+    def _start_camera(self, camera_index: int):
+        """Stop any existing camera thread and start a new one (or show placeholder)."""
+        if self._camera_thread is not None:
+            self._camera_thread.stop()
+            self._camera_thread = None
+
+        if camera_index < 0:
+            self.camera_placeholder.setPixmap(QPixmap())
+            self.camera_placeholder.setText("No camera output")
+            return
+
+        self._camera_thread = CameraThread(camera_index, parent=self)
+        self._camera_thread.frame_ready.connect(self._on_camera_frame)
+        self._camera_thread.start()
+
+    def _on_camera_frame(self, image):
+        """Crop-fill the latest camera frame into the fixed camera_placeholder square,
+        with rounded corners to match the blue border style."""
+        w = self.camera_placeholder.width()
+        h = self.camera_placeholder.height()
+
+        # Scale so the frame covers the full box (may overflow one axis)
+        scaled = QPixmap.fromImage(image).scaled(
+            w, h,
+            Qt.AspectRatioMode.KeepAspectRatioByExpanding,
+            Qt.TransformationMode.SmoothTransformation,
+        )
+        # Crop the centre of the scaled pixmap to exactly w×h
+        x_off = (scaled.width()  - w) // 2
+        y_off = (scaled.height() - h) // 2
+        cropped = scaled.copy(QRect(x_off, y_off, w, h))
+
+        # Paint with rounded-corner clip (radius 6 px sits inside the 8 px blue border)
+        rounded = QPixmap(w, h)
+        rounded.fill(Qt.GlobalColor.transparent)
+        painter = QPainter(rounded)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+        path = QPainterPath()
+        path.addRoundedRect(0, 0, w, h, 6, 6)
+        painter.setClipPath(path)
+        painter.drawPixmap(0, 0, cropped)
+        painter.end()
+
+        self.camera_placeholder.setPixmap(rounded)
+        self.camera_placeholder.setText("")
+
+    # ── window close ──────────────────────────────────────────────────────────
+
+    def closeEvent(self, event):
+        """Stop the camera thread cleanly when the window is closed."""
+        if self._camera_thread is not None:
+            self._camera_thread.stop()
+            self._camera_thread = None
+        super().closeEvent(event)
 
     # ── navigation ────────────────────────────────────────────────────────────
 
@@ -345,6 +445,27 @@ class ActivityWindow(QWidget):
         self.scorecard_log_label.setText(
             f"Passed: {self._passed_count}  |  Failed: {self._failed_count}"
         )
+
+    def _load_robot_picture(self):
+        """Load alpha_mini_image.png (transparent bg) into robot_picture_placeholder."""
+        img_path = os.path.join(CURRENT_DIR, "alpha_mini_image.png")
+        if not os.path.exists(img_path):
+            return
+        lbl = self.robot_picture_placeholder
+        w = lbl.width() if lbl.width() > 0 else 160
+        h = lbl.height() if lbl.height() > 0 else 160
+        pix = QPixmap(img_path).scaled(
+            w, h,
+            Qt.AspectRatioMode.KeepAspectRatio,
+            Qt.TransformationMode.SmoothTransformation,
+        )
+        lbl.setPixmap(pix)
+        lbl.setText("")
+
+    def showEvent(self, event):
+        """Re-load robot picture once the window is visible and labels have real sizes."""
+        super().showEvent(event)
+        QTimer.singleShot(0, self._load_robot_picture)
 
     # ── chat ──────────────────────────────────────────────────────────────────
 

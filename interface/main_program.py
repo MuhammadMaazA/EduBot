@@ -4,17 +4,25 @@ from PyQt6 import uic
 from PyQt6.QtWidgets import QApplication, QWidget
 
 from activity_window import ActivityWindow
+from camera_manager import list_cameras
 
 # path to config_window.ui
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 UI_PATH = os.path.join(CURRENT_DIR, "config_window.ui")
 
+
 class ConfigWindow(QWidget):
     def __init__(self):
         super().__init__()
         uic.loadUi(UI_PATH, self)
-        self.connect_signals()
         self._activity_window = None
+
+        # Populate camera dropdown: [(-1, "No camera"), (0, "Camera 0"), ...]
+        self._cameras = list_cameras()
+        for _idx, label in self._cameras:
+            self.camera_selector.addItem(label)
+
+        self.connect_signals()
 
     def connect_signals(self):
         self.save_settings_button.clicked.connect(self.save_settings)
@@ -23,7 +31,15 @@ class ConfigWindow(QWidget):
     def save_settings(self):
         name = self.robot_name.text()
         volume = self.robot_volume.value()
-        print(f"Saved! Name: {name}, Volume: {volume}")
+        camera_index = self._selected_camera_index()
+        print(f"Saved! Name: {name}, Volume: {volume}, Camera index: {camera_index}")
+
+    def _selected_camera_index(self) -> int:
+        """Return the actual OpenCV camera index for the current combo selection."""
+        combo_pos = self.camera_selector.currentIndex()
+        if 0 <= combo_pos < len(self._cameras):
+            return self._cameras[combo_pos][0]
+        return -1
 
     def start_activity(self):
         self.hide()
@@ -38,6 +54,7 @@ class ConfigWindow(QWidget):
         self._activity_window = ActivityWindow(
             activity_number=number,
             on_navigate=self._open_activity,
+            camera_index=self._selected_camera_index(),
         )
         self._activity_window.show()
 
