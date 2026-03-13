@@ -1,2 +1,5 @@
 # interface
 PyQt6>=6.0.0
+
+# camera output
+opencv-python>=4.13.0.92
