@@ -17,7 +17,7 @@
    <string notr="true">QWidget#ActivityWindow { background-color: #ffffff; }
 QLabel#activity_title_label { color: #1e3a5f; font-size: 22px; font-weight: bold; }
 QLabel#activity_description_label { color: #1e3a5f; font-size: 14px; }
-QLabel#camera_placeholder { background-color: #2d5a87; color: white; font-size: 12px; border-radius: 8px; padding: 20px; min-width: 200px; min-height: 200px; }
+QLabel#camera_placeholder { background-color: #2d5a87; color: white; font-size: 12px; border-radius: 8px; padding: 4px; min-width: 200px; min-height: 200px; }
 QLabel#activity_placeholder { background-color: #e8eef4; color: #1e3a5f; font-size: 14px; border: 2px dashed #2d5a87; border-radius: 8px; padding: 40px; }
 QGroupBox#chat_group { background-color: #2d5a87; border: none; border-radius: 10px; padding: 8px; margin-top: 0px; }
 QGroupBox#chat_group::title { color: transparent; font-size: 0px; }
@@ -35,7 +35,7 @@ QPushButton#stop_code_button { background-color: #dc2626; color: white; font-siz
 QPushButton#stop_code_button:hover { background-color: #b91c1c; }
 QGroupBox#scorecard_group { background-color: #2d5a87; border: none; border-radius: 10px; padding: 8px; margin-top: 0px; }
 QGroupBox#scorecard_group::title { color: transparent; font-size: 0px; }
-QGroupBox#scorecard_group QLabel { color: white; }
+QGroupBox#scorecard_group QLabel { color: white; font-size: 14px; font-weight: bold; }
 QLabel#robot_picture_placeholder { background-color: #1e3a5f; color: white; font-size: 11px; border-radius: 6px; padding: 16px; min-height: 120px; }
 QLabel#section_title { color: #1e3a5f; font-size: 13px; font-weight: bold; }
 QScrollArea#chat_scroll { background-color: #f0f4f8; border-radius: 6px; border: none; }
@@ -76,7 +76,7 @@ QWidget#chat_bubble_container { background-color: #f0f4f8; }</string>
        </item>
        <item>
         <widget class="QPushButton" name="prev_activity_button">
-         <property name="text"><string>Previous Activity</string></property>
+         <property name="text"><string>Previous&#10;Activity</string></property>
          <property name="toolTip"><string>Go to previous activity</string></property>
          <property name="styleSheet">
           <string notr="true">background-color: #2563eb; color: white; font-size: 12px; font-weight: bold; padding: 8px 10px; border-radius: 8px; border: none; min-height: 48px;</string>
@@ -85,7 +85,7 @@ QWidget#chat_bubble_container { background-color: #f0f4f8; }</string>
        </item>
        <item>
         <widget class="QPushButton" name="next_activity_button">
-         <property name="text"><string>Next Activity</string></property>
+         <property name="text"><string>Next&#10;Activity</string></property>
          <property name="toolTip"><string>Go to next activity</string></property>
          <property name="styleSheet">
           <string notr="true">background-color: #2563eb; color: white; font-size: 12px; font-weight: bold; padding: 8px 10px; border-radius: 8px; border: none; min-height: 48px;</string>
@@ -113,14 +113,15 @@ QWidget#chat_bubble_container { background-color: #f0f4f8; }</string>
       </spacer>
      </item>
 
-     <!-- Camera -->
+     <!-- Camera — fixed 220×220, never grows with frame content -->
      <item>
       <widget class="QLabel" name="camera_placeholder">
-       <property name="text"><string>Robot Camera (to be filled in later)</string></property>
+       <property name="text"><string>No camera output</string></property>
        <property name="alignment"><set>Qt::AlignmentFlag::AlignCenter</set></property>
-       <property name="minimumSize"><size><width>200</width><height>200</height></size></property>
+       <property name="minimumSize"><size><width>220</width><height>220</height></size></property>
+       <property name="maximumSize"><size><width>220</width><height>220</height></size></property>
        <property name="sizePolicy">
-        <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
          <horstretch>0</horstretch><verstretch>0</verstretch>
         </sizepolicy>
        </property>
@@ -158,10 +159,12 @@ QWidget#chat_bubble_container { background-color: #f0f4f8; }</string>
       <widget class="QGroupBox" name="scorecard_group">
        <property name="title"><string/></property>
        <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+        <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
          <horstretch>0</horstretch><verstretch>1</verstretch>
         </sizepolicy>
        </property>
+       <property name="minimumSize"><size><width>220</width><height>0</height></size></property>
+       <property name="maximumSize"><size><width>220</width><height>16777215</height></size></property>
        <layout class="QVBoxLayout" name="scorecard_layout">
         <property name="spacing"><number>8</number></property>
         <item>
@@ -173,11 +176,13 @@ QWidget#chat_bubble_container { background-color: #f0f4f8; }</string>
         <item>
          <widget class="QLabel" name="current_activity_label">
           <property name="text"><string>Current activity: 1</string></property>
+          <property name="wordWrap"><bool>true</bool></property>
          </widget>
         </item>
         <item>
          <widget class="QLabel" name="stopwatch_label">
           <property name="text"><string>Time: 0:00</string></property>
+          <property name="wordWrap"><bool>true</bool></property>
          </widget>
         </item>
         <item>

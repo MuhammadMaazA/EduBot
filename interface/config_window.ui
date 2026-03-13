@@ -120,6 +120,20 @@ QPushButton#start_button:hover { background-color: #1d4ed8; }</string>
         </property>
        </widget>
       </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="camera_label">
+        <property name="text">
+         <string>Camera:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QComboBox" name="camera_selector">
+        <property name="toolTip">
+         <string>Choose a camera for the robot view</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>
